@@ -202,17 +202,38 @@
                                             <div className="flex items-center gap-3 text-slate-500 text-xs font-semibold">
                                                 <div className="bg-slate-100 p-1 rounded-md">
                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                                </div>
-                                                {item.prof === 'Conf. dr. ing. Deleanu Iuliana' ? (
-  <a 
-    href="mailto:iuliana.deleanu@upb.ro?subject=Operatii%20Unitare%20in%20Industria%20Alimentara%202%20-%20Marti"
-    className="hover:text-blue-600 underline"
-  >
-    {item.prof}
-  </a>
-) : (
-  item.prof
-)}
+                                                {(() => {
+  const emailRules = [
+    { day: 'Marți', subject: 'Operații unitare în industria alimentară 2', type: 'Curs', email: 'iuliana.deleanu@upb.ro' },
+    { day: 'Marți', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Curs', email: 'raluca.stan@upb.ro' },
+    { day: 'Marți', subject: 'Analiză senzorială', type: 'Curs', email: 'camelia.ungureanu@upb.ro' },
+
+    { day: 'Joi', subject: 'Principiile nutriţiei umane', type: 'Curs', email: 'nicoleta.chira@upb.ro' },
+    { day: 'Joi', subject: 'Microbiologie specială', type: 'Curs', email: 'alexandru.ciric@upb.ro' },
+    { day: 'Joi', subject: 'Biochimie', type: 'Curs', email: 'ioana.lacatusu@upb.ro' },
+    { day: 'Joi', subject: 'Inocuitatea produselor alimentare', type: 'Curs', email: 'anca.razvan@upb.ro' },
+    { day: 'Joi', subject: 'Didactica specialităţii', type: 'Curs', email: 'mburcea@upb.ro' },
+    { day: 'Joi', subject: 'Didactica specialităţii', type: 'Seminar', email: 'mburcea@upb.ro' },
+  ];
+
+  const match = emailRules.find(rule =>
+    rule.day === item.day &&
+    rule.subject === item.subject &&
+    rule.type === item.type
+  );
+
+  return match ? (
+    <a
+      href={`mailto:${match.email}`}
+      className="hover:text-blue-600 underline"
+    >
+      {item.prof}
+    </a>
+  ) : (
+    item.prof
+  );
+})()}
+
 
                                             </div>
                                             <div className="flex items-center gap-3 text-slate-700 text-xs font-black uppercase tracking-tighter italic">
@@ -261,6 +282,7 @@
 </body>
 
 </html>
+
 
 
 
