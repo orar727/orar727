@@ -238,28 +238,7 @@
       );
     })()}
 
-  </div>
-</div>
-
-
-  const match = emailRules.find(rule =>
-    rule.day === item.day &&
-    rule.subject === item.subject &&
-    rule.type === item.type
-  );
-
-  return match ? (
-    <a
-      href={`mailto:${match.email}`}
-      className="hover:text-blue-600 underline"
-    >
-      {item.prof}
-    </a>
-  ) : (
-    item.prof
-  );
-})()}
-
+ 
                                             </div>
                                             <div className="flex items-center gap-3 text-slate-700 text-xs font-black uppercase tracking-tighter italic">
                                                 <div className="bg-slate-100 p-1 rounded-md text-slate-400">
@@ -307,6 +286,7 @@
 </body>
 
 </html>
+
 
 
 
