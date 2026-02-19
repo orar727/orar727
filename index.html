@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
- <title>Orar IPA 727 • 2026</title>
+  <title>Orar IPA 727 • 2026</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -34,10 +34,27 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
         .card-gradient-light { background: linear-gradient(135deg, #ffffff 0%, #f9faff 100%); }
         .card-gradient-dark { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        
+        /* Evidențiere intensă pentru cursul activ */
+        .active-glow-light {
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%) !important;
+            border-color: #ef4444 !important;
+            border-width: 2px !important;
+        }
+        .active-glow-dark {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+            background: linear-gradient(135deg, #2d1a1a 0%, #0f172a 100%) !important;
+            border-color: #f87171 !important;
+            border-width: 2px !important;
+        }
+
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        
         .active-day-tab { position: relative; }
         .active-day-tab::after {
             content: '';
@@ -47,16 +64,18 @@
             transform: translateX(-50%);
             width: 4px;
             height: 4px;
-            background-color: #3b82f6;
+            background-color: #2563eb;
             border-radius: 50%;
         }
+
+        /* Indicatorul ACUM lăsat ROȘU intens */
         .live-pulse {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background-color: #ef4444;
             border-radius: 50%;
-            margin-right: 6px;
+            margin-right: 8px;
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
@@ -85,10 +104,10 @@
             // MIERCURI
             { day: 'Miercuri', start: '08:00', end: '11:50', subject: 'Inocuitatea produselor alimentare', type: 'Laborator', prof: 'Conf. dr. ing. Răzvan A.G.', email: 'anca.razvan@upb.ro', room: 'I308 Polizu', group: 'A', week: 'Săpt. 8-14' },
             { day: 'Miercuri', start: '08:00', end: '11:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. Dr. ing Ionescu Daiana', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'B', week: 'S. Pară' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'A', week: 'Săpt. 8, 10, 11-2h*', note: '🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină aditivii și începe biochimia în aceeași zi).' },
-            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Mihalache M.', email: 'mihaela.mihalache@upb.ro', room: 'L016 Polizu', group: 'A', week: 'Săpt. 11-2h*, 12-14' },
-            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Tociu M.', email: 'mihaela.tociu@upb.ro', room: 'L016 Polizu', group: 'B', week: 'Săpt. 8-10, 11-2h*', note:'🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină biochimia și încep aditivii)' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'B', week: 'Săpt. 11-2h*, 12-14' },
+            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'A', week: 'Săpt. 8, 10, 11*', note: '🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină aditivii și începe biochimia în aceeași zi).' },
+            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Mihalache M.', email: 'mihaela.mihalache@upb.ro', room: 'L016 Polizu', group: 'A', week: 'Săpt. 11*, 12-14' },
+            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Tociu M.', email: 'mihaela.tociu@upb.ro', room: 'L016 Polizu', group: 'B', week: 'Săpt. 8-10, 11*', note:'🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină biochimia și încep aditivii)' },
+            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'B', week: 'Săpt. 11*, 12-14', note: 'Săpt. 11: 2 ore aditivi + 2 ore biochimie' },
             { day: 'Miercuri', start: '16:00', end: '17:50', subject: 'Principiile nutriţiei umane', type: 'Seminar', prof: 'Conf. dr. ing. Chira Nicoleta', email: 'nicoleta.chira@upb.ro', room: 'L102 Polizu', group: 'Toți', week: 'Săpt. 8-14' },
 
             // JOI
@@ -104,7 +123,7 @@
             { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Analiză senzorială', type: 'Laborator', prof: 'Conf. dr. ing. Ungureanu C.', email: 'camelia.ungureanu@upb.ro', room: 'L026 Polizu', group: 'A', week: 'S. Impară' },
             { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Operaţii unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106 Polizu', group: 'B', week: 'S. Impară' },
             { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Sport', type: 'Sport', prof: 'Cristea D.N.', email: 'dan_niculae.cristea@upb.ro', room: 'Sala Sport', group: 'Toți', week: 'S. Pară' },
-            { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Operații unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201 Polziu', group: 'A', week: 'S. Impară' },
+            { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Operații unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201 Polizu', group: 'A', week: 'S. Impară' },
             { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Analiză senzorială', type: 'Laborator', prof: 'Conf. dr. ing. Ungureanu C.', email: 'camelia.ungureanu@upb.ro', room: 'L026 Polizu', group: 'B', week: 'S. Impară' },
             { day: 'Vineri', start: '14:00', end: '15:50', subject: 'Operaţii unitare în industria alimentară 2', type: 'Proiect', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201 Polizu', group: 'Toți', week: 'S. Impară' },
         ];
@@ -213,7 +232,6 @@
             return (
                 <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
                     <header className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-50 shadow-sm overflow-hidden`}>
-                        {/* Header Content */}
                         <div className="px-6 pt-12 pb-6">
                             <div className="max-w-2xl mx-auto flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-4">
@@ -256,7 +274,6 @@
                             </div>
                         </div>
 
-                        {/* Navigation - Acum parte din Header pentru a elimina gap-ul la scroll */}
                         <nav className={`${darkMode ? 'bg-slate-950/50 border-slate-900' : 'bg-slate-50 border-slate-100'} px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-t`}>
                             <div className="max-w-2xl mx-auto flex gap-2 w-full">
                                 {days.map(day => (
@@ -273,17 +290,19 @@
                                 <div 
                                     key={i} 
                                     ref={active ? activeCardRef : null}
-                                    className={`${darkMode ? 'card-gradient-dark border-slate-800' : 'bg-white border-slate-100 card-gradient-light'} rounded-[2rem] p-6 border shadow-sm relative overflow-hidden animate-pop ${active ? (darkMode ? 'ring-4 ring-blue-500/30 border-blue-500 z-10 scale-[1.02]' : 'ring-4 ring-blue-500/20 border-blue-500 z-10 scale-[1.02]') : ''}`}
+                                    className={`${darkMode ? 'card-gradient-dark border-slate-800' : 'bg-white border-slate-100 card-gradient-light'} 
+                                        rounded-[2rem] p-6 border shadow-sm relative overflow-hidden animate-pop transition-all duration-300
+                                        ${active ? (darkMode ? 'active-glow-dark z-10 scale-[1.03]' : 'active-glow-light z-10 scale-[1.03]') : ''}`}
                                 >
                                     <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${getAccentColor(item.type)} ${active ? 'animate-pulse' : 'opacity-80'}`}></div>
                                     
                                     <div className="flex flex-col sm:flex-row gap-6">
                                         <div className="sm:w-32 shrink-0">
-                                            <div className="flex items-center gap-2 text-xl font-black italic tracking-tighter leading-none mb-1">
+                                            <div className={`flex items-center gap-2 text-xl font-black italic tracking-tighter leading-none mb-1 ${active ? 'text-red-600' : ''}`}>
                                                 {item.start} - {item.end}
                                             </div>
                                             {active && (
-                                                <div className="flex items-center text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3">
+                                                <div className="flex items-center text-[10px] font-black text-red-600 uppercase tracking-widest mb-3">
                                                     <span className="live-pulse"></span> ACUM
                                                 </div>
                                             )}
@@ -296,7 +315,7 @@
                                         </div>
 
                                         <div className="flex-1">
-                                            <h3 className="text-lg font-extrabold leading-tight mb-4 italic uppercase tracking-tight">{item.subject}</h3>
+                                            <h3 className={`text-lg font-extrabold leading-tight mb-4 italic uppercase tracking-tight ${active ? 'text-red-700 dark:text-red-500' : ''}`}>{item.subject}</h3>
                                             
                                             <div className="space-y-3">
                                                 <div className="flex items-center gap-3 text-xs font-semibold flex-wrap">
@@ -352,4 +371,3 @@
     </script>
 </body>
 </html>
-
