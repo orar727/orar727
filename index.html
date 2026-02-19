@@ -70,7 +70,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useMemo, useEffect } = React;
+        const { useState, useMemo, useEffect, useRef } = React;
 
         const scheduleData = [
             // LUNI
@@ -85,10 +85,10 @@
             // MIERCURI
             { day: 'Miercuri', start: '08:00', end: '11:50', subject: 'Inocuitatea produselor alimentare', type: 'Laborator', prof: 'Conf. dr. ing. Răzvan A.G.', email: 'anca.razvan@upb.ro', room: 'I308 Polizu', group: 'A', week: 'Săpt. 8-14' },
             { day: 'Miercuri', start: '08:00', end: '11:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. Dr. ing Ionescu Daiana', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'B', week: 'S. Pară' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'A', week: 'Săpt. 8, 10, 11*', note: '🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină aditivii și începe biochimia în aceeași zi).' },
-            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Mihalache M.', email: 'mihaela.mihalache@upb.ro', room: 'L016 Polizu', group: 'A', week: 'Săpt. 11*, 12-14' },
-            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Tociu M.', email: 'mihaela.tociu@upb.ro', room: 'L016 Polizu', group: 'B', week: 'Săpt. 8-10, 11*', note:'🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină biochimia și încep aditivii)' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'B', week: 'Săpt. 11*, 12-14' },
+            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'A', week: 'Săpt. 8, 10, 11-2h*', note: '🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină aditivii și începe biochimia în aceeași zi).' },
+            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Mihalache M.', email: 'mihaela.mihalache@upb.ro', room: 'L016 Polizu', group: 'A', week: 'Săpt. 11-2h*, 12-14' },
+            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Tociu M.', email: 'mihaela.tociu@upb.ro', room: 'L016 Polizu', group: 'B', week: 'Săpt. 8-10, 11-2h*', note:'🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină biochimia și încep aditivii)' },
+            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'B', week: 'Săpt. 11-2h*, 12-14' },
             { day: 'Miercuri', start: '16:00', end: '17:50', subject: 'Principiile nutriţiei umane', type: 'Seminar', prof: 'Conf. dr. ing. Chira Nicoleta', email: 'nicoleta.chira@upb.ro', room: 'L102 Polizu', group: 'Toți', week: 'Săpt. 8-14' },
 
             // JOI
@@ -111,11 +111,29 @@
 
         const days = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri'];
 
+        // Funcție pentru a obține numărul săptămânii din an
+        const getWeekNumber = (d) => {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return weekNo;
+        };
+
         function App() {
-            const [group, setGroup] = useState(() => localStorage.getItem('ipa_g_vFinal') || 'Toate');
-            const [week, setWeek] = useState(() => localStorage.getItem('ipa_w_vFinal') || 'Toate');
-            const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ipa_theme') === 'dark');
             const [now, setNow] = useState(new Date());
+            
+            // Calculăm paritatea curentă. Săptămâna 16-22 feb 2026 este săptămâna 8 din an.
+            // 8 % 2 === 0 => Pară. Deci folosim numărul săptămânii direct pentru paritate.
+            const currentWeekParity = useMemo(() => {
+                const weekNum = getWeekNumber(now);
+                return weekNum % 2 === 0 ? 'Pară' : 'Impară';
+            }, [now]);
+
+            const [group, setGroup] = useState(() => localStorage.getItem('ipa_g_vFinal') || 'Toate');
+            const [week, setWeek] = useState(() => localStorage.getItem('ipa_w_vFinal') || currentWeekParity);
+            const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ipa_theme') === 'dark');
+            const activeCardRef = useRef(null);
             
             useEffect(() => {
                 const timer = setInterval(() => setNow(new Date()), 60000);
@@ -134,6 +152,18 @@
             }, [now]);
 
             const [activeDay, setActiveDay] = useState(activeDayString);
+
+            // Scroll automat către cursul activ
+            useEffect(() => {
+                if (activeCardRef.current) {
+                    setTimeout(() => {
+                        activeCardRef.current.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }, 500);
+                }
+            }, [activeDay, group, week]);
 
             const filteredData = useMemo(() => {
                 return scheduleData.filter(item => {
@@ -178,41 +208,32 @@
                     case 'Laborator': return '🧪';
                     case 'Curs': return '📖';
                     case 'Seminar': return '💬';
-                    case 'Proiect': return '🛠';
+                    case 'Proiect': return '🛠️';
                     case 'Sport': return '🏋️';
                     default: return '📍';
                 }
             };
 
-            const getLabelStyles = (type) => {
-                switch (type) {
-                    case 'Curs': return 'bg-blue-50 text-blue-700 border-blue-100';
-                    case 'Laborator': return 'bg-rose-50 text-rose-700 border-rose-100';
-                    case 'Seminar': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-                    case 'Proiect': return 'bg-orange-50 text-orange-700 border-orange-100';
-                    case 'Sport': return 'bg-purple-50 text-purple-700 border-purple-100';
-                    default: return 'bg-slate-50 text-slate-700 border-slate-100';
-                }
-            };
-
             return (
                 <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-                    {/* Header bar */}
                     <header className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b px-6 pt-12 pb-6 sticky top-0 z-50 shadow-sm`}>
-                        <div className="max-w-2xl mx-auto flex items-center justify-between mb-8">
+                        <div className="max-w-2xl mx-auto flex items-center justify-between mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="bg-blue-600 w-12 h-12 rounded-2xl shadow-xl flex items-center justify-center text-white text-2xl">
                                     📅
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-black italic tracking-tight leading-none uppercase">IPA 727</h1>
-                                    <p className={`text-[10px] font-bold uppercase tracking-[0.2em] mt-1.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Semestrul 2 •</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${darkMode ? 'bg-blue-950 text-blue-400 border-blue-800' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                            SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             
                             <button 
                                 onClick={() => setDarkMode(!darkMode)}
-                                title="Schimbă Tema"
                                 className={`p-3 rounded-2xl transition-all ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-blue-600 hover:bg-slate-200'}`}
                             >
                                 {darkMode ? (
@@ -237,8 +258,7 @@
                         </div>
                     </header>
 
-                    {/* Day Navigator */}
-                    <nav className={`${darkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-50 border-slate-100'} px-4 py-4 flex gap-2 overflow-x-auto no-scrollbar sticky top-[190px] z-40 border-b shadow-sm`}>
+                    <nav className={`${darkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-50 border-slate-100'} px-4 py-4 flex gap-2 overflow-x-auto no-scrollbar sticky top-[194px] z-40 border-b shadow-sm`}>
                         <div className="max-w-2xl mx-auto flex gap-2 w-full">
                             {days.map(day => (
                                 <button key={day} onClick={() => setActiveDay(day)} className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-sm border whitespace-nowrap ${activeDay === day ? (darkMode ? 'bg-blue-600 text-white border-blue-600 active-day-tab' : 'bg-white text-blue-600 border-blue-200 active-day-tab') : (darkMode ? 'text-slate-600 border-transparent' : 'text-slate-400 border-transparent')}`}>{day}</button>
@@ -250,8 +270,11 @@
                         {currentSchedule.length > 0 ? currentSchedule.map((item, i) => {
                             const active = isClassActive(item.start, item.end, item.day);
                             return (
-                                <div key={i} className={`${darkMode ? 'card-gradient-dark border-slate-800' : 'bg-white border-slate-100 card-gradient-light'} rounded-[2rem] p-6 border shadow-sm relative overflow-hidden animate-pop ${active ? (darkMode ? 'ring-4 ring-blue-500/30 border-blue-500 z-10 scale-[1.02]' : 'ring-4 ring-blue-500/20 border-blue-500 z-10 scale-[1.02]') : ''}`}>
-                                    {/* Culorile vizibile în stânga */}
+                                <div 
+                                    key={i} 
+                                    ref={active ? activeCardRef : null}
+                                    className={`${darkMode ? 'card-gradient-dark border-slate-800' : 'bg-white border-slate-100 card-gradient-light'} rounded-[2rem] p-6 border shadow-sm relative overflow-hidden animate-pop ${active ? (darkMode ? 'ring-4 ring-blue-500/30 border-blue-500 z-10 scale-[1.02]' : 'ring-4 ring-blue-500/20 border-blue-500 z-10 scale-[1.02]') : ''}`}
+                                >
                                     <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${getAccentColor(item.type)} ${active ? 'animate-pulse' : 'opacity-80'}`}></div>
                                     
                                     <div className="flex flex-col sm:flex-row gap-6">
@@ -312,7 +335,7 @@
                         }) : (
                             <div className="py-32 text-center">
                                 <div className="text-5xl mb-4 grayscale opacity-30">🏡</div>
-                                <h3 className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[10px]">Zi Fără Activități</h3>
+                                <h3 className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[10px]">Zi Liberă</h3>
                             </div>
                         )}
                     </main>
@@ -329,4 +352,3 @@
     </script>
 </body>
 </html>
-
