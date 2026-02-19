@@ -104,14 +104,13 @@
             { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Analiză senzorială', type: 'Laborator', prof: 'Conf. dr. ing. Ungureanu C.', email: 'camelia.ungureanu@upb.ro', room: 'L026 Polizu', group: 'A', week: 'S. Impară' },
             { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Operaţii unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106 Polizu', group: 'B', week: 'S. Impară' },
             { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Sport', type: 'Sport', prof: 'Cristea D.N.', email: 'dan_niculae.cristea@upb.ro', room: 'Sala Sport', group: 'Toți', week: 'S. Pară' },
-            { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Operații unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D016/L201', group: 'A', week: 'S. Impară' },
+            { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Operații unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201 Polziu', group: 'A', week: 'S. Impară' },
             { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Analiză senzorială', type: 'Laborator', prof: 'Conf. dr. ing. Ungureanu C.', email: 'camelia.ungureanu@upb.ro', room: 'L026 Polizu', group: 'B', week: 'S. Impară' },
-            { day: 'Vineri', start: '14:00', end: '15:50', subject: 'Operaţii unitare în industria alimentară 2', type: 'Proiect', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201', group: 'Toți', week: 'S. Impară' },
+            { day: 'Vineri', start: '14:00', end: '15:50', subject: 'Operaţii unitare în industria alimentară 2', type: 'Proiect', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201 Polizu', group: 'Toți', week: 'S. Impară' },
         ];
 
         const days = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri'];
 
-        // Funcție pentru a obține numărul săptămânii din an
         const getWeekNumber = (d) => {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -123,8 +122,6 @@
         function App() {
             const [now, setNow] = useState(new Date());
             
-            // Calculăm paritatea curentă. Săptămâna 16-22 feb 2026 este săptămâna 8 din an.
-            // 8 % 2 === 0 => Pară. Deci folosim numărul săptămânii direct pentru paritate.
             const currentWeekParity = useMemo(() => {
                 const weekNum = getWeekNumber(now);
                 return weekNum % 2 === 0 ? 'Pară' : 'Impară';
@@ -153,7 +150,6 @@
 
             const [activeDay, setActiveDay] = useState(activeDayString);
 
-            // Scroll automat către cursul activ
             useEffect(() => {
                 if (activeCardRef.current) {
                     setTimeout(() => {
@@ -208,7 +204,7 @@
                     case 'Laborator': return '🧪';
                     case 'Curs': return '📖';
                     case 'Seminar': return '💬';
-                    case 'Proiect': return '🛠️';
+                    case 'Proiect': return '🛠';
                     case 'Sport': return '🏋️';
                     default: return '📍';
                 }
@@ -216,55 +212,59 @@
 
             return (
                 <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-                    <header className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b px-6 pt-12 pb-6 sticky top-0 z-50 shadow-sm`}>
-                        <div className="max-w-2xl mx-auto flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-4">
-                                <div className="bg-blue-600 w-12 h-12 rounded-2xl shadow-xl flex items-center justify-center text-white text-2xl">
-                                    📅
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-black italic tracking-tight leading-none uppercase">IPA 727</h1>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${darkMode ? 'bg-blue-950 text-blue-400 border-blue-800' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                            SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
-                                        </span>
+                    <header className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-50 shadow-sm overflow-hidden`}>
+                        {/* Header Content */}
+                        <div className="px-6 pt-12 pb-6">
+                            <div className="max-w-2xl mx-auto flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-blue-600 w-12 h-12 rounded-2xl shadow-xl flex items-center justify-center text-white text-2xl">
+                                        📅
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-black italic tracking-tight leading-none uppercase">IPA 727</h1>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${darkMode ? 'bg-blue-950 text-blue-400 border-blue-800' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
+                                
+                                <button 
+                                    onClick={() => setDarkMode(!darkMode)}
+                                    className={`p-3 rounded-2xl transition-all ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-blue-600 hover:bg-slate-200'}`}
+                                >
+                                    {darkMode ? (
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h1m-16 0h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
+                                    ) : (
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                    )}
+                                </button>
                             </div>
-                            
-                            <button 
-                                onClick={() => setDarkMode(!darkMode)}
-                                className={`p-3 rounded-2xl transition-all ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-blue-600 hover:bg-slate-200'}`}
-                            >
-                                {darkMode ? (
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h1m-16 0h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
-                                ) : (
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                                )}
-                            </button>
+
+                            <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3">
+                                <div className={`${darkMode ? 'bg-slate-800' : 'bg-slate-100'} p-1 rounded-2xl flex`}>
+                                    {['Toate', 'A', 'B'].map(g => (
+                                        <button key={g} onClick={() => setGroup(g)} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${group === g ? (darkMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 shadow-sm') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>{g === 'Toate' ? 'Grupă' : g}</button>
+                                    ))}
+                                </div>
+                                <div className={`${darkMode ? 'bg-slate-800' : 'bg-slate-100'} p-1 rounded-2xl flex`}>
+                                    {['Toate', 'Impară', 'Pară'].map(w => (
+                                        <button key={w} onClick={() => setWeek(w)} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${week === w ? (darkMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 shadow-sm') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>{w === 'Toate' ? 'Săpt.' : w}</button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3">
-                            <div className={`${darkMode ? 'bg-slate-800' : 'bg-slate-100'} p-1 rounded-2xl flex`}>
-                                {['Toate', 'A', 'B'].map(g => (
-                                    <button key={g} onClick={() => setGroup(g)} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${group === g ? (darkMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 shadow-sm') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>{g === 'Toate' ? 'Grupă' : g}</button>
+                        {/* Navigation - Acum parte din Header pentru a elimina gap-ul la scroll */}
+                        <nav className={`${darkMode ? 'bg-slate-950/50 border-slate-900' : 'bg-slate-50 border-slate-100'} px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-t`}>
+                            <div className="max-w-2xl mx-auto flex gap-2 w-full">
+                                {days.map(day => (
+                                    <button key={day} onClick={() => setActiveDay(day)} className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-sm border whitespace-nowrap ${activeDay === day ? (darkMode ? 'bg-blue-600 text-white border-blue-600 active-day-tab' : 'bg-white text-blue-600 border-blue-200 active-day-tab') : (darkMode ? 'text-slate-600 border-transparent' : 'text-slate-400 border-transparent')}`}>{day}</button>
                                 ))}
                             </div>
-                            <div className={`${darkMode ? 'bg-slate-800' : 'bg-slate-100'} p-1 rounded-2xl flex`}>
-                                {['Toate', 'Impară', 'Pară'].map(w => (
-                                    <button key={w} onClick={() => setWeek(w)} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${week === w ? (darkMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 shadow-sm') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>{w === 'Toate' ? 'Săpt.' : w}</button>
-                                ))}
-                            </div>
-                        </div>
+                        </nav>
                     </header>
-
-                    <nav className={`${darkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-50 border-slate-100'} px-4 py-4 flex gap-2 overflow-x-auto no-scrollbar sticky top-[194px] z-40 border-b shadow-sm`}>
-                        <div className="max-w-2xl mx-auto flex gap-2 w-full">
-                            {days.map(day => (
-                                <button key={day} onClick={() => setActiveDay(day)} className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-sm border whitespace-nowrap ${activeDay === day ? (darkMode ? 'bg-blue-600 text-white border-blue-600 active-day-tab' : 'bg-white text-blue-600 border-blue-200 active-day-tab') : (darkMode ? 'text-slate-600 border-transparent' : 'text-slate-400 border-transparent')}`}>{day}</button>
-                            ))}
-                        </div>
-                    </nav>
 
                     <main className="max-w-2xl mx-auto w-full px-4 py-6 space-y-4 flex-1">
                         {currentSchedule.length > 0 ? currentSchedule.map((item, i) => {
@@ -288,7 +288,7 @@
                                                 </div>
                                             )}
                                             <div className="flex flex-wrap gap-1.5 mt-4">
-                                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase border tracking-tight ${darkMode ? 'bg-slate-900 text-slate-400 border-slate-700' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
+                                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase border tracking-tight ${darkMode ? 'bg-slate-900 text-slate-300 border-slate-700' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
                                                     {getIcon(item.type)} {item.type}
                                                 </span>
                                                 {item.group !== 'Toți' && <span className={`${darkMode ? 'bg-slate-100 text-slate-900' : 'bg-slate-900 text-white'} text-[9px] font-black px-2.5 py-1 rounded-lg uppercase`}>GR. {item.group}</span>}
