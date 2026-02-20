@@ -321,24 +321,31 @@
                 return clean;
             };
 
-            const handleSaveExam = async (updatedExam) => {
-                if (!user || isSaving || !window.FB) return;
-                setIsSaving(true);
-                
-                const newList = exams.map(e => e.id === updatedExam.id ? updatedExam : e);
-                
-                try {
-                    const { db, appId, doc, setDoc } = window.FB;
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
-                    await setDoc(docRef, { list: newList });
-                    // Modalul se închide doar după ce scrierea a reușit
-                    setEditModalExam(null);
-                } catch (err) {
-                    console.error("Eroare la salvare:", err);
-                } finally {
-                    setIsSaving(false);
-                }
-            };
+const handleSaveExam = async (updatedExam) => {
+    if (isSaving || !window.FB) return;
+
+    setIsSaving(true);
+
+    const newList = exams.map(e =>
+        e.id === updatedExam.id ? updatedExam : e
+    );
+
+    try {
+        const { db, appId, doc, setDoc } = window.FB;
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
+
+        await setDoc(docRef, { list: newList }, { merge: true });
+
+        setExams(newList);   // actualizare instant local
+        setEditModalExam(null);
+
+    } catch (err) {
+        console.error("Eroare la salvare:", err);
+        alert("Eroare la salvare. Vezi consola.");
+    } finally {
+        setIsSaving(false);
+    }
+};
 
             const getAccentColor = (type) => {
                 switch (type) {
@@ -691,3 +698,4 @@
     </script>
 </body>
 </html>
+
