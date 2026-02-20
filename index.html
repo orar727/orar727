@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Orar IPA 727 • 2026</title>
+ <title>Orar IPA 727 • 2026</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -96,7 +96,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Configurație Firebase stabilă
+        // Configurație Firebase folosind variabila de mediu
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -118,8 +118,8 @@
             { id: 'aditivi', subject: 'Aditivi și ingrediente în industria alimentară', type: 'Examen', credits: 4, date: '', time: '', room: '' },
             { id: 'nutritie', subject: 'Principiile nutriției umane', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
             { id: 'analiza', subject: 'Analiză senzorială', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
-            { id: 'engleza', subject: 'Limba engleză', type: 'Colocviu', credits: 1, date: '', time: '', room: '' },
-            { id: 'sport', subject: 'Educaţie fizică şi sport', type: 'Colocviu', credits: 1, date: '', time: '', room: '' }
+            { id: 'engleza', subject: 'Limba engleză IV', type: 'Colocviu', credits: 1, date: '', time: '', room: '' },
+            { id: 'sport', subject: 'Educaţie fizică şi sport IV', type: 'Colocviu', credits: 1, date: '', time: '', room: '' }
         ];
 
         const scheduleData = [
@@ -152,7 +152,7 @@
 
         const usefulLinks = [
             { name: 'Moodle UPB', url: 'https://curs.upb.ro/', desc: 'Platforma oficială de cursuri', icon: '🎓' },
-            { name: 'Platformă Note (Studenti)', url: 'https://studenti.pub.ro/', desc: 'Note, restanțe și taxe', icon: '📝' },
+            { name: 'Platformă Note (Studenti)', url: 'https://studenti.pub.ro/', desc: 'Note, prezențe și taxe', icon: '📝' },
             { name: 'Site Facultate (ISB)', url: 'https://isb.pub.ro/', desc: 'Anunțuri și noutăți Ingineria Sistemelor Biotehnice', icon: '🏢' },
         ];
 
@@ -165,7 +165,6 @@
             return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
         };
 
-        // Helper pentru sortare cronologică a datelor de tip "30 Mai"
         const parseExamDate = (dateStr) => {
             if (!dateStr || dateStr.toLowerCase().includes('așteptare')) return 999999;
             const months = {
@@ -227,23 +226,35 @@
                         } else {
                             await signInAnonymously(auth);
                         }
-                        onAuthStateChanged(auth, setUser);
                     } catch (e) { console.error("Auth init error:", e); }
+                    const unsubscribeAuth = onAuthStateChanged(auth, setUser);
+                    return () => unsubscribeAuth();
                 };
                 initAuth();
             }, []);
 
+            // ✅ PASUL 3 – Încărcare examene (useEffect corectat conform cerinței)
             useEffect(() => {
                 if (!user || !window.FB) return;
+
                 const { db, appId, doc, onSnapshot } = window.FB;
-                
-                const examDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
-                const unsubscribe = onSnapshot(examDocRef, (snap) => {
-                    if (snap.exists()) {
-                        const data = snap.data().list;
-                        if (data && Array.isArray(data)) setExams(data);
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
+
+                const unsubscribe = onSnapshot(
+                    docRef,
+                    (snapshot) => {
+                        if (snapshot.exists()) {
+                            const docData = snapshot.data();
+                            if (docData && Array.isArray(docData.list)) {
+                                setExams(docData.list);
+                            }
+                        }
+                    },
+                    (err) => {
+                        console.error("Firestore Listen Error:", err);
+                        alert("Eroare sincronizare: " + err.message);
                     }
-                }, (err) => console.error("Firestore Listen Error:", err));
+                );
 
                 return () => unsubscribe();
             }, [user]);
@@ -321,31 +332,44 @@
                 return clean;
             };
 
-const handleSaveExam = async (updatedExam) => {
-    if (isSaving || !window.FB) return;
+            // ✅ PASUL 2 – Funcție handleSaveExam (fix real conform cerinței)
+            const handleSaveExam = async (updatedExam) => {
+                if (!window.FB) {
+                    alert("Firebase nu este încă inițializat.");
+                    return;
+                }
 
-    setIsSaving(true);
+                if (!user) {
+                    alert("Utilizatorul nu este autentificat.");
+                    return;
+                }
 
-    const newList = exams.map(e =>
-        e.id === updatedExam.id ? updatedExam : e
-    );
+                setIsSaving(true);
 
-    try {
-        const { db, appId, doc, setDoc } = window.FB;
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
+                try {
+                    const { db, appId, doc, setDoc } = window.FB;
 
-        await setDoc(docRef, { list: newList }, { merge: true });
+                    // Folosim calea obligatorie artifacts/{appId}/public/data/exams/main
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
 
-        setExams(newList);   // actualizare instant local
-        setEditModalExam(null);
+                    const newList = exams.map(e =>
+                        e.id === updatedExam.id ? updatedExam : e
+                    );
 
-    } catch (err) {
-        console.error("Eroare la salvare:", err);
-        alert("Eroare la salvare. Vezi consola.");
-    } finally {
-        setIsSaving(false);
-    }
-};
+                    // 🔥 FIX IMPORTANT: merge:true pentru siguranța scrierii
+                    await setDoc(docRef, { list: newList }, { merge: true });
+
+                    setExams(newList);
+                    setEditModalExam(null);
+                    alert("Salvat cu succes!");
+
+                } catch (err) {
+                    console.error("Eroare la salvare:", err);
+                    alert("Eroare la salvare:\n" + err.message);
+                } finally {
+                    setIsSaving(false);
+                }
+            };
 
             const getAccentColor = (type) => {
                 switch (type) {
@@ -410,7 +434,7 @@ const handleSaveExam = async (updatedExam) => {
 
                             <div className="max-w-2xl mx-auto flex gap-2 mb-4 bg-slate-100/50 dark:bg-slate-800/50 p-1 rounded-2xl border border-transparent dark:border-slate-800 shadow-inner">
                                 {[
-                                    { id: 'orar', label: 'Orar', icon: '📜' },
+                                    { id: 'orar', label: 'Orar', icon: '⏰' },
                                     { id: 'examene', label: 'Examene', icon: '📝' },
                                     { id: 'links', label: 'Link-uri', icon: '🔗' }
                                 ].map(tab => (
@@ -687,7 +711,7 @@ const handleSaveExam = async (updatedExam) => {
                     )}
 
                     <footer className={`py-8 text-center px-8 border-t ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'}`}>
-                        <p className={`text-[8px] font-black uppercase tracking-[0.4em] italic leading-loose ${darkMode ? 'text-slate-600' : 'text-slate-300'}`}>Ingineria Produselor Alimentare • Final.2026 • UPB</p>
+                        <p className={`text-[9px] font-black uppercase tracking-[0.4em] italic leading-loose ${darkMode ? 'text-slate-600' : 'text-slate-300'}`}>Ingineria Produselor Alimentare • Final.2026 • UPB</p>
                     </footer>
                 </div>
             );
@@ -698,4 +722,3 @@ const handleSaveExam = async (updatedExam) => {
     </script>
 </body>
 </html>
-
