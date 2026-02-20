@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Orar IPA 727 • 2026</title>
+ <title>Orar IPA 727 • 2026</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -68,7 +68,6 @@
             border-radius: 50%;
         }
 
-        /* Indicatorul ACUM lăsat ROȘU intens */
         .live-pulse {
             display: inline-block;
             width: 10px;
@@ -76,7 +75,7 @@
             background-color: #ef4444;
             border-radius: 50%;
             margin-right: 8px;
-            animation: pulse 2s infinite;
+            animation: pulse 3s infinite;
         }
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
@@ -107,7 +106,7 @@
             { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'A', week: 'Săpt. 8, 10, 11-2h*', note: '🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină aditivii și începe biochimia în aceeași zi).' },
             { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Mihalache M.', email: 'mihaela.mihalache@upb.ro', room: 'L016 Polizu', group: 'A', week: 'Săpt. 11-2h*, 12-14' },
             { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Tociu M.', email: 'mihaela.tociu@upb.ro', room: 'L016 Polizu', group: 'B', week: 'Săpt. 8-10, 11-2h*', note:'🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină biochimia și încep aditivii)' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'B', week: 'Săpt. 11-2h*, 12-14', },
+            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'B', week: 'Săpt. 11-2h*, 12-14' },
             { day: 'Miercuri', start: '16:00', end: '17:50', subject: 'Principiile nutriţiei umane', type: 'Seminar', prof: 'Conf. dr. ing. Chira Nicoleta', email: 'nicoleta.chira@upb.ro', room: 'L102 Polizu', group: 'Toți', week: 'Săpt. 8-14' },
 
             // JOI
@@ -144,6 +143,16 @@
             const currentWeekParity = useMemo(() => {
                 const weekNum = getWeekNumber(now);
                 return weekNum % 2 === 0 ? 'Pară' : 'Impară';
+            }, [now]);
+
+            // Calcul Progres Semestru
+            const semesterProgress = useMemo(() => {
+                const start = new Date(2026, 1, 23); // 23 Februarie
+                const end = new Date(2026, 4, 29);   // 29 Mai
+                const total = end - start;
+                const elapsed = now - start;
+                const percentage = Math.round((elapsed / total) * 100);
+                return Math.min(Math.max(percentage, 0), 100);
             }, [now]);
 
             const [group, setGroup] = useState(() => localStorage.getItem('ipa_g_vFinal') || 'Toate');
@@ -224,7 +233,7 @@
                     case 'Curs': return '📖';
                     case 'Seminar': return '💬';
                     case 'Proiect': return '🛠';
-                    case 'Sport': return '💪';
+                    case 'Sport': return '💪️';
                     default: return '📍';
                 }
             };
@@ -240,10 +249,19 @@
                                     </div>
                                     <div>
                                         <h1 className="text-2xl font-black italic tracking-tight leading-none uppercase">IPA 727</h1>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${darkMode ? 'bg-blue-950 text-blue-400 border-blue-800' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                                SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
-                                            </span>
+                                        <div className="flex flex-col gap-1 mt-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${darkMode ? 'bg-blue-950 text-blue-400 border-blue-800' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                    SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
+                                                </span>
+                                            </div>
+                                            {/* Indicator Progres Semestru */}
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <div className={`w-24 h-1.5 rounded-full overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                                                    <div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${semesterProgress}%` }}></div>
+                                                </div>
+                                                <span className={`text-[9px] font-bold ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Semestru: {semesterProgress}% complet</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -292,7 +310,7 @@
                                     ref={active ? activeCardRef : null}
                                     className={`${darkMode ? 'card-gradient-dark border-slate-800' : 'bg-white border-slate-100 card-gradient-light'} 
                                         rounded-[2rem] p-6 border shadow-sm relative overflow-hidden animate-pop transition-all duration-300
-                                        ${active ? (darkMode ? 'active-glow-dark z-10 scale-[1.03]' : 'active-glow-light z-10 scale-[1.03]') : ''}`}
+                                        ${active ? (darkMode ? 'active-glow-dark z-10 scale-[1.03] border-2' : 'active-glow-light z-10 scale-[1.03] border-2') : ''}`}
                                 >
                                     <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${getAccentColor(item.type)} ${active ? 'animate-pulse' : 'opacity-80'}`}></div>
                                     
@@ -371,4 +389,3 @@
     </script>
 </body>
 </html>
-
