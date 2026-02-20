@@ -10,7 +10,7 @@
   gtag('config', 'G-YYKRP7FGL6');
 </script>
    
-  <!-- Configurare Firebase cu datele tale reale -->
+ <!-- Configurare Firebase cu datele tale reale -->
 <script>
    window.__firebase_config = JSON.stringify({
        apiKey: "AIzaSyAFDBBmMggXykckmf6aoIT1ZUBNN8nETKg",
@@ -48,6 +48,7 @@
             -webkit-tap-highlight-color: transparent; 
             user-select: none;
             transition: background-color 0.3s ease;
+            background-attachment: fixed;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -71,6 +72,22 @@
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         
+        .animate-slide {
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .active-day-tab { position: relative; }
         .active-day-tab::after {
             content: '';
@@ -80,8 +97,9 @@
             transform: translateX(-50%);
             width: 4px;
             height: 4px;
-            background-color: #2563eb;
+            background-color: currentColor;
             border-radius: 50%;
+            animation: pulse 2s infinite;
         }
 
         .live-pulse {
@@ -110,6 +128,49 @@
             border-radius: 50%;
             display: inline-block;
         }
+
+        /* Loading Skeleton Animation */
+        .skeleton {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Hover Effects */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Subtle Pattern Background */
+        .pattern-light {
+            background-color: #f8fafc;
+            background-image: radial-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        .pattern-dark {
+            background-color: #0f172a;
+            background-image: radial-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Gradient Headers */
+        .gradient-header-blue {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        }
+        .gradient-header-green {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+        .gradient-header-purple {
+            background: linear-gradient(135deg, #7c3aed, #c026d3);
+        }
     </style>
 </head>
 <body>
@@ -119,7 +180,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
@@ -131,7 +192,7 @@
         window.FB = { 
             auth, db, appId, 
             signInAnonymously, onAuthStateChanged, 
-            doc, setDoc, onSnapshot 
+            doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc 
         };
         
         console.log("Firebase inițializat cu succes!");
@@ -154,7 +215,7 @@
         ];
 
         const scheduleData = [
-            { day: 'Luni', start: '08:00', end: '11:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. drd. ing. Ionescu D.', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'A', week: 'S. Impară' },
+            { day: 'Luni', start: '08:00', end: '09:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. drd. ing. Ionescu D.', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'A', week: 'S. Impară' },
             { day: 'Luni', start: '08:00', end: '11:50', subject: 'Inocuitatea produselor alimentare', type: 'Laborator', prof: 'Sl. dr. ing. Crăciun L.', email: 'luminita.craciun@upb.ro', room: 'I308 Polizu', group: 'B', week: 'Săpt. 8-14' },
             { day: 'Marți', start: '10:00', end: '11:50', subject: 'Operații unitare în industria alimentară 2', type: 'Curs', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'L120 Polizu', group: 'Toți', week: 'Toate' },
             { day: 'Marți', start: '12:00', end: '13:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Curs', prof: 'Prof. dr. ing. Stan Raluca', email: 'raluca.stan@upb.ro', room: 'L120 Polizu', group: 'Toți', week: 'Toate' },
@@ -183,6 +244,24 @@
 
         const days = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri'];
 
+        const subjectsList = [
+            'Biochimie',
+            'Microbiologie specială',
+            'Inocuitatea produselor alimentare',
+            'Operații unitare în industria alimentară 2',
+            'Aditivi şi ingrediente în industria alimentară',
+            'Principiile nutriţiei umane',
+            'Analiză senzorială',
+            'Limba engleză IV',
+            'Sport'
+        ];
+
+        const accentColors = {
+            blue: { primary: '#2563eb', light: '#bfdbfe', dark: '#1e40af', gradient: 'gradient-header-blue', name: 'Albastru' },
+            green: { primary: '#059669', light: '#a7f3d0', dark: '#065f46', gradient: 'gradient-header-green', name: 'Verde' },
+            purple: { primary: '#7c3aed', light: '#ddd6fe', dark: '#5b21b6', gradient: 'gradient-header-purple', name: 'Mov' }
+        };
+
         const getWeekNumber = (d) => {
             const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
@@ -191,54 +270,213 @@
         };
 
        const parseExamDate = (dateStr) => {
-    // examenele fără dată merg JOS
-    if (!dateStr || dateStr.toLowerCase().includes('aşteptare') || dateStr === '') {
-        return Infinity;
-    }
-
-    const months = {
-        'ianuarie': 1, 'ian': 1,
-        'februarie': 2, 'feb': 2,
-        'martie': 3, 'mar': 3,
-        'aprilie': 4, 'apr': 4,
-        'mai': 5,
-        'iunie': 6, 'iun': 6,
-        'iulie': 7, 'iul': 7,
-        'august': 8, 'aug': 8,
-        'septembrie': 9, 'sep': 9,
-        'octombrie': 10, 'oct': 10,
-        'noiembrie': 11, 'noi': 11,
-        'decembrie': 12, 'dec': 12
-    };
-
-    const cleanStr = dateStr.toLowerCase().trim();
-    const parts = cleanStr.split(' ');
-
-    if (parts.length >= 2) {
-        const day = parseInt(parts[0], 10);
-        let month = 0;
-
-        for (let [monthName, monthNum] of Object.entries(months)) {
-            if (parts[1].includes(monthName)) {
-                month = monthNum;
-                break;
+            // examenele fără dată merg JOS
+            if (!dateStr || dateStr.toLowerCase().includes('aşteptare') || dateStr === '') {
+                return Infinity;
             }
-        }
 
-        if (day && month) {
-            return (2026 * 10000) + (month * 100) + day;
-        }
-    }
+            const months = {
+                'ianuarie': 1, 'ian': 1,
+                'februarie': 2, 'feb': 2,
+                'martie': 3, 'mar': 3,
+                'aprilie': 4, 'apr': 4,
+                'mai': 5,
+                'iunie': 6, 'iun': 6,
+                'iulie': 7, 'iul': 7,
+                'august': 8, 'aug': 8,
+                'septembrie': 9, 'sep': 9,
+                'octombrie': 10, 'oct': 10,
+                'noiembrie': 11, 'noi': 11,
+                'decembrie': 12, 'dec': 12
+            };
 
-    // fallback → tot JOS
-    return Infinity;
-};
+            const cleanStr = dateStr.toLowerCase().trim();
+            const parts = cleanStr.split(' ');
+
+            if (parts.length >= 2) {
+                const day = parseInt(parts[0], 10);
+                let month = 0;
+
+                for (let [monthName, monthNum] of Object.entries(months)) {
+                    if (parts[1].includes(monthName)) {
+                        month = monthNum;
+                        break;
+                    }
+                }
+
+                if (day && month) {
+                    return (2026 * 10000) + (month * 100) + day;
+                }
+            }
+
+            // fallback → tot JOS
+            return Infinity;
+        };
 
         const usefulLinks = [
             { name: 'Moodle UPB', url: 'https://curs.upb.ro/', desc: 'Platforma oficială de cursuri', icon: '🎓' },
             { name: 'Platformă Note (Studenti)', url: 'https://studenti.pub.ro/', desc: 'Note, restanțe și taxe', icon: '📝' },
             { name: 'Site Facultate (ISB)', url: 'https://isb.pub.ro/', desc: 'Anunțuri și noutăți Ingineria Sistemelor Biotehnice', icon: '🏢' },
         ];
+
+        function LoadingSkeleton() {
+            return (
+                <div className="space-y-4 animate-fade">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800">
+                            <div className="flex gap-4">
+                                <div className="w-28">
+                                    <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded skeleton mb-2"></div>
+                                    <div className="h-4 w-16 bg-slate-200 dark:bg-slate-800 rounded skeleton"></div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="h-6 w-3/4 bg-slate-200 dark:bg-slate-800 rounded skeleton mb-3"></div>
+                                    <div className="space-y-2">
+                                        <div className="h-4 w-1/2 bg-slate-200 dark:bg-slate-800 rounded skeleton"></div>
+                                        <div className="h-4 w-1/3 bg-slate-200 dark:bg-slate-800 rounded skeleton"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        function AnnouncementCard({ announcement, darkMode, onEdit, onDelete }) {
+            const [isEditing, setIsEditing] = useState(false);
+            const [editedAnnouncement, setEditedAnnouncement] = useState(announcement);
+
+            const getTypeIcon = (type) => {
+                switch(type) {
+                    case 'test': return '📝';
+                    case 'tema': return '📋';
+                    case 'observatie': return '💡';
+                    default: return '📢';
+                }
+            };
+
+            const getTypeColor = (type) => {
+                switch(type) {
+                    case 'test': return 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
+                    case 'tema': return 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400';
+                    case 'observatie': return 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400';
+                    default: return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
+                }
+            };
+
+            const handleSave = () => {
+                onEdit(editedAnnouncement);
+                setIsEditing(false);
+            };
+
+            if (isEditing) {
+                return (
+                    <div className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'} p-5 rounded-2xl border shadow-sm animate-pop`}>
+                        <div className="space-y-3">
+                            <select
+                                value={editedAnnouncement.type}
+                                onChange={(e) => setEditedAnnouncement({...editedAnnouncement, type: e.target.value})}
+                                className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                            >
+                                <option value="test" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📝 Test</option>
+                                <option value="tema" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📋 Temă</option>
+                                <option value="observatie" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>💡 Observație</option>
+                            </select>
+                            <input
+                                type="text"
+                                value={editedAnnouncement.title}
+                                onChange={(e) => setEditedAnnouncement({...editedAnnouncement, title: e.target.value})}
+                                placeholder="Titlu"
+                                className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
+                            />
+                            <select
+                                value={editedAnnouncement.subject || ''}
+                                onChange={(e) => setEditedAnnouncement({...editedAnnouncement, subject: e.target.value})}
+                                className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                            >
+                                <option value="" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>Fără materie specifică</option>
+                                {subjectsList.map(subj => (
+                                    <option key={subj} value={subj} className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>{subj}</option>
+                                ))}
+                            </select>
+                            <textarea
+                                value={editedAnnouncement.content}
+                                onChange={(e) => setEditedAnnouncement({...editedAnnouncement, content: e.target.value})}
+                                placeholder="Descriere"
+                                rows="3"
+                                className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none resize-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
+                            />
+                            <input
+                                type="text"
+                                value={editedAnnouncement.dueDate || ''}
+                                onChange={(e) => setEditedAnnouncement({...editedAnnouncement, dueDate: e.target.value})}
+                                placeholder="Data limită (ex: 25 Mai 2026)"
+                                className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
+                            />
+                            <div className="flex gap-2 mt-2">
+                                <button
+                                    onClick={handleSave}
+                                    className="flex-1 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase"
+                                >
+                                    Salvează
+                                </button>
+                                <button
+                                    onClick={() => setIsEditing(false)}
+                                    className="flex-1 py-2 bg-slate-500 text-white rounded-xl text-xs font-black uppercase"
+                                >
+                                    Renunță
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'} p-5 rounded-2xl border shadow-sm transition-all relative group card-hover animate-slide`}>
+                    <div className="flex items-start gap-3 mb-3">
+                        <span className="text-2xl">{getTypeIcon(announcement.type)}</span>
+                        <div className="flex-1 overflow-hidden">
+                            <div className="flex items-center justify-between mb-1">
+                                <h3 className="font-extrabold text-sm uppercase italic">{announcement.title}</h3>
+                                <span className={`text-[8px] font-black px-2 py-1 rounded-full ${getTypeColor(announcement.type)}`}>
+                                    {announcement.type === 'test' ? 'TEST' : announcement.type === 'tema' ? 'TEMĂ' : 'OBSERVAȚIE'}
+                                </span>
+                            </div>
+                            {announcement.subject && (
+                                <p className="text-[10px] font-bold text-green-500 mb-1">📚 {announcement.subject}</p>
+                            )}
+                            <p className="text-sm text-red-600 dark:text-red-400 mb-2 break-words whitespace-pre-wrap">{announcement.content}</p>
+                            {announcement.dueDate && (
+                                <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 mb-2">⏰ Data limită: {announcement.dueDate}</p>
+                            )}
+                            <div className="flex items-center justify-end text-[9px] font-bold text-slate-500">
+                                <span>{new Date(announcement.date).toLocaleDateString('ro-RO')}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Butoane editare/ștergere pentru toată lumea */}
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="p-1.5 bg-blue-500 text-white rounded-lg text-[10px] hover:scale-110 transition-all"
+                            title="Editează"
+                        >
+                            ✏️
+                        </button>
+                        <button
+                            onClick={() => onDelete(announcement.id)}
+                            className="p-1.5 bg-red-500 text-white rounded-lg text-[10px] hover:scale-110 transition-all"
+                            title="Șterge"
+                        >
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            );
+        }
 
         function App() {
             const [now, setNow] = useState(new Date());
@@ -251,6 +489,17 @@
             const [isSaving, setIsSaving] = useState(false);
             const [user, setUser] = useState(null);
             const [isOnline, setIsOnline] = useState(false);
+            const [isLoading, setIsLoading] = useState(true);
+            const [announcements, setAnnouncements] = useState([]);
+            const [showNewAnnouncementModal, setShowNewAnnouncementModal] = useState(false);
+            const [accentColor, setAccentColor] = useState(() => localStorage.getItem('ipa_accent') || 'blue');
+            const [newAnnouncement, setNewAnnouncement] = useState({ 
+                title: '', 
+                content: '', 
+                type: 'tema',
+                subject: '',
+                dueDate: ''
+            });
             
             const currentWeekParity = useMemo(() => {
                 const weekNum = getWeekNumber(now);
@@ -275,6 +524,11 @@
             const [week, setWeek] = useState(() => localStorage.getItem('ipa_w_vFinal') || currentWeekParity);
             const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ipa_theme') === 'dark');
             const activeCardRef = useRef(null);
+
+            // Simulare încărcare interfață 
+            useEffect(() => {
+                setTimeout(() => setIsLoading(false), 1200);
+            }, []);
 
             // Autentificare Firebase
             useEffect(() => {
@@ -314,7 +568,31 @@
                 };
             }, []);
 
-            // Sincronizare Firestore
+            // Sincronizare Anunțuri
+            useEffect(() => {
+                if (!user || !window.FB) return;
+
+                const { db, appId, collection, onSnapshot, query, orderBy } = window.FB;
+                const announcementsRef = collection(db, 'artifacts', appId, 'public', 'data', 'announcements');
+                const q = query(announcementsRef, orderBy('date', 'desc'));
+
+                const unsubscribe = onSnapshot(q, 
+                    (snapshot) => {
+                        const announcementsList = [];
+                        snapshot.forEach((doc) => {
+                            announcementsList.push({ id: doc.id, ...doc.data() });
+                        });
+                        setAnnouncements(announcementsList);
+                    },
+                    (error) => {
+                        console.error("❌ Eroare încărcare anunțuri:", error);
+                    }
+                );
+
+                return () => unsubscribe();
+            }, [user]);
+
+            // Sincronizare Firestore (Examene)
             useEffect(() => {
                 if (!user || !window.FB) return;
 
@@ -354,7 +632,8 @@
                 localStorage.setItem('ipa_g_vFinal', group);
                 localStorage.setItem('ipa_w_vFinal', week);
                 localStorage.setItem('ipa_theme', darkMode ? 'dark' : 'light');
-            }, [group, week, darkMode]);
+                localStorage.setItem('ipa_accent', accentColor);
+            }, [group, week, darkMode, accentColor]);
 
             const activeDayString = useMemo(() => {
                 const dayIndex = now.getDay();
@@ -364,12 +643,12 @@
             const [activeDay, setActiveDay] = useState(activeDayString);
 
             useEffect(() => {
-                if (view === 'orar' && activeCardRef.current) {
+                if (view === 'orar' && activeCardRef.current && !isLoading) {
                     setTimeout(() => {
                         activeCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 600);
                 }
-            }, [activeDay, group, week, view]);
+            }, [activeDay, group, week, view, isLoading]);
 
             const filteredSchedule = useMemo(() => {
                 return scheduleData.filter(item => {
@@ -440,14 +719,71 @@
                 }
             };
 
-            const getAccentColor = (type) => {
+            const handleAddAnnouncement = async () => {
+                if (!newAnnouncement.title || !newAnnouncement.content || !user || !window.FB) return;
+                
+                try {
+                    const { db, appId, collection, addDoc } = window.FB;
+                    const announcementsRef = collection(db, 'artifacts', appId, 'public', 'data', 'announcements');
+                    
+                    const announcementData = {
+                        ...newAnnouncement,
+                        date: new Date().toISOString() // Salvăm strict informațiile postării (fără autor)
+                    };
+                    
+                    await addDoc(announcementsRef, announcementData);
+                    
+                    setShowNewAnnouncementModal(false);
+                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '' });
+                } catch (err) {
+                    console.error("❌ Eroare la adăugare anunț:", err);
+                    alert("Eroare la salvare: " + err.message);
+                }
+            };
+
+            const handleEditAnnouncement = async (updatedAnnouncement) => {
+                if (!user || !window.FB) return;
+                
+                try {
+                    const { db, appId, doc, updateDoc } = window.FB;
+                    const announcementRef = doc(db, 'artifacts', appId, 'public', 'data', 'announcements', updatedAnnouncement.id);
+                    
+                    await updateDoc(announcementRef, {
+                        title: updatedAnnouncement.title,
+                        content: updatedAnnouncement.content,
+                        type: updatedAnnouncement.type,
+                        subject: updatedAnnouncement.subject || '',
+                        dueDate: updatedAnnouncement.dueDate || '',
+                        lastEdited: new Date().toISOString()
+                    });
+                } catch (err) {
+                    console.error("❌ Eroare la editare anunț:", err);
+                    alert("Eroare la editare: " + err.message);
+                }
+            };
+
+            const handleDeleteAnnouncement = async (id) => {
+                if (!user || !window.FB || !window.confirm("Sigur dorești să ștergi acest anunț?")) return;
+                
+                try {
+                    const { db, appId, doc, deleteDoc } = window.FB;
+                    const announcementRef = doc(db, 'artifacts', appId, 'public', 'data', 'announcements', id);
+                    
+                    await deleteDoc(announcementRef);
+                } catch (err) {
+                    console.error("❌ Eroare la ștergere anunț:", err);
+                    alert("Eroare la ștergere: " + err.message);
+                }
+            };
+
+            const getAccentColorHex = (type, accent) => {
                 switch (type) {
-                    case 'Curs': return 'bg-blue-600';
-                    case 'Laborator': return 'bg-rose-500';
-                    case 'Seminar': return 'bg-emerald-500';
-                    case 'Proiect': return 'bg-orange-500';
-                    case 'Sport': return 'bg-purple-500';
-                    default: return 'bg-slate-400';
+                    case 'Curs': return accentColors[accent].primary;
+                    case 'Laborator': return '#f43f5e'; // rose-500
+                    case 'Seminar': return '#10b981'; // emerald-500
+                    case 'Proiect': return '#f97316'; // orange-500
+                    case 'Sport': return '#a855f7'; // purple-500
+                    default: return '#94a3b8'; // slate-400
                 }
             };
 
@@ -463,58 +799,71 @@
             };
 
             return (
-                <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-                    <header className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-50 shadow-sm`}>
-                        <div className="px-6 pt-10 pb-4">
+                <div className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100 pattern-dark' : 'bg-slate-50 text-slate-900 pattern-light'}`}>
+                    <header className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-50 shadow-sm transition-colors duration-300`}>
+                        <div className={`px-6 pt-10 pb-4 ${accentColors[accentColor].gradient} text-white transition-all duration-500`}>
                             <div className="max-w-2xl mx-auto flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="bg-blue-600 w-11 h-11 rounded-xl shadow-xl flex items-center justify-center text-white text-xl">
+                                    <div className="bg-white/20 w-11 h-11 rounded-xl shadow-xl flex items-center justify-center text-white text-xl backdrop-blur-sm transition-all duration-300">
                                         📅
                                     </div>
                                     <div>
                                         <h1 className="text-xl font-black italic tracking-tight leading-none uppercase">IPA 727</h1>
                                         <div className="flex flex-col gap-1.5 mt-2">
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border shadow-sm uppercase ${darkMode ? 'bg-blue-950 text-blue-400 border-blue-800' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                <span className="text-[9px] font-black px-2 py-0.5 rounded-full border border-white/30 bg-white/20 uppercase backdrop-blur-sm">
                                                     SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
                                                 </span>
-                                                <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${isOnline ? 'text-emerald-500 bg-emerald-500/10' : 'text-amber-500 bg-amber-500/10'}`}>
-                                                    <span className={`status-dot ${isOnline ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                                                <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${isOnline ? 'text-emerald-100 bg-emerald-500/30' : 'text-amber-100 bg-amber-500/30'}`}>
+                                                    <span className={`status-dot ${isOnline ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
                                                     {isOnline ? 'CONECTAT' : 'CONECTARE...'}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <div className={`w-20 h-1.5 rounded-full overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
-                                                    <div className="h-full bg-blue-600 transition-all duration-1000" style={{ width: `${semesterProgress}%` }}></div>
+                                                <div className="w-20 h-1.5 rounded-full overflow-hidden bg-white/30">
+                                                    <div className="h-full bg-white transition-all duration-1000" style={{ width: `${semesterProgress}%` }}></div>
                                                 </div>
-                                                <span className={`text-[9px] font-bold ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Semestru: {semesterProgress}% complet</span>
+                                                <span className="text-[9px] font-bold text-white/80">Semestru: {semesterProgress}% complet</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <button 
-                                    onClick={() => setDarkMode(!darkMode)}
-                                    className={`p-2.5 rounded-xl transition-all shadow-sm ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-blue-600 hover:bg-slate-200'}`}
-                                >
-                                    {darkMode ? (
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h1m-16 0h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
-                                    ) : (
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                                    )}
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        value={accentColor}
+                                        onChange={(e) => setAccentColor(e.target.value)}
+                                        className="px-2 py-1.5 rounded-xl text-[9px] font-black uppercase bg-white/20 text-white border border-white/30 backdrop-blur-sm focus:outline-none transition-all cursor-pointer"
+                                    >
+                                        {Object.entries(accentColors).map(([key, value]) => (
+                                            <option key={key} value={key} className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>{value.name}</option>
+                                        ))}
+                                    </select>
+                                    <button 
+                                        onClick={() => setDarkMode(!darkMode)}
+                                        className="p-2.5 rounded-xl bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm transition-all shadow-sm"
+                                    >
+                                        {darkMode ? (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h1m-16 0h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
+                                        ) : (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="max-w-2xl mx-auto flex gap-2 mb-4 bg-slate-100/50 dark:bg-slate-800/50 p-1 rounded-2xl border border-transparent dark:border-slate-800 shadow-inner">
+                            <div className="max-w-2xl mx-auto flex gap-2 mb-4 bg-white/10 p-1 rounded-2xl border border-transparent shadow-inner backdrop-blur-sm">
                                 {[
                                     { id: 'orar', label: 'Orar', icon: '📜' },
                                     { id: 'examene', label: 'Examene', icon: '📝' },
+                                    { id: 'anunturi', label: 'Anunțuri', icon: '📢' },
                                     { id: 'links', label: 'Link-uri', icon: '🔗' }
                                 ].map(tab => (
                                     <button 
                                         key={tab.id} 
                                         onClick={() => setView(tab.id)}
-                                        className={`flex-1 py-2 text-xs font-black uppercase tracking-tighter rounded-xl transition-all flex items-center justify-center gap-2 ${view === tab.id ? (darkMode ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-blue-600 shadow-md') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}
+                                        className={`flex-1 py-2 text-xs font-black uppercase tracking-tighter rounded-xl transition-all flex items-center justify-center gap-2 ${view === tab.id ? 'bg-white shadow-lg' : 'text-white hover:bg-white/20'}`}
+                                        style={view === tab.id ? { color: accentColors[accentColor].primary } : {}}
                                     >
                                         <span>{tab.icon}</span> {tab.label}
                                     </button>
@@ -523,14 +872,28 @@
 
                             {view === 'orar' && (
                                 <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3 animate-pop">
-                                    <div className={`${darkMode ? 'bg-slate-800' : 'bg-slate-100'} p-1 rounded-2xl flex`}>
+                                    <div className="bg-white/10 p-1 rounded-2xl flex backdrop-blur-sm">
                                         {['Toate', 'A', 'B'].map(g => (
-                                            <button key={g} onClick={() => setGroup(g)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-xl transition-all ${group === g ? (darkMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 shadow-sm') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>{g === 'Toate' ? 'Grupă' : g}</button>
+                                            <button 
+                                                key={g} 
+                                                onClick={() => setGroup(g)} 
+                                                className={`flex-1 py-1.5 text-[10px] font-bold rounded-xl transition-all ${group === g ? 'bg-white shadow-sm' : 'text-white hover:bg-white/20'}`}
+                                                style={group === g ? { color: accentColors[accentColor].primary } : {}}
+                                            >
+                                                {g === 'Toate' ? 'Grupă' : g}
+                                            </button>
                                         ))}
                                     </div>
-                                    <div className={`${darkMode ? 'bg-slate-800' : 'bg-slate-100'} p-1 rounded-2xl flex`}>
+                                    <div className="bg-white/10 p-1 rounded-2xl flex backdrop-blur-sm">
                                         {['Toate', 'Impară', 'Pară'].map(w => (
-                                            <button key={w} onClick={() => setWeek(w)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-xl transition-all ${week === w ? (darkMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 shadow-sm') : (darkMode ? 'text-slate-500' : 'text-slate-400')}`}>{w === 'Toate' ? 'Săpt.' : w}</button>
+                                            <button 
+                                                key={w} 
+                                                onClick={() => setWeek(w)} 
+                                                className={`flex-1 py-1.5 text-[10px] font-bold rounded-xl transition-all ${week === w ? 'bg-white shadow-sm' : 'text-white hover:bg-white/20'}`}
+                                                style={week === w ? { color: accentColors[accentColor].primary } : {}}
+                                            >
+                                                {w === 'Toate' ? 'Săpt.' : w}
+                                            </button>
                                         ))}
                                     </div>
                                 </div>
@@ -538,10 +901,17 @@
                         </div>
 
                         {view === 'orar' && (
-                            <nav className={`${darkMode ? 'bg-slate-950/50 border-slate-900' : 'bg-slate-50 border-slate-100'} px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-t`}>
+                            <nav className={`${darkMode ? 'bg-slate-950/50 border-slate-900' : 'bg-slate-50 border-slate-100'} px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-t transition-colors`}>
                                 <div className="max-w-2xl mx-auto flex gap-2 w-full">
                                     {days.map(day => (
-                                        <button key={day} onClick={() => setActiveDay(day)} className={`px-6 py-2 rounded-xl text-xs font-bold transition-all shadow-sm border whitespace-nowrap ${activeDay === day ? (darkMode ? 'bg-blue-600 text-white border-blue-600 active-day-tab' : 'bg-white text-blue-600 border-blue-200 active-day-tab') : (darkMode ? 'text-slate-600 border-transparent' : 'text-slate-400 border-transparent')}`}>{day}</button>
+                                        <button 
+                                            key={day} 
+                                            onClick={() => setActiveDay(day)} 
+                                            className={`px-6 py-2 rounded-xl text-xs font-bold transition-all shadow-sm border whitespace-nowrap card-hover ${activeDay === day ? 'bg-white border-transparent active-day-tab' : (darkMode ? 'text-slate-600 border-transparent hover:bg-slate-900' : 'text-slate-400 border-transparent hover:bg-white')}`}
+                                            style={activeDay === day ? { color: accentColors[accentColor].primary } : {}}
+                                        >
+                                            {day}
+                                        </button>
                                     ))}
                                 </div>
                             </nav>
@@ -549,8 +919,10 @@
                     </header>
 
                     <main className="max-w-2xl mx-auto w-full px-4 py-6 flex-1">
-                        {view === 'orar' && (
-                            <div className="space-y-4">
+                        {isLoading && view === 'orar' && <LoadingSkeleton />}
+
+                        {!isLoading && view === 'orar' && (
+                            <div className="space-y-4 animate-fade" key={`${activeDay}-${group}-${week}`}>
                                 {currentSchedule.length > 0 ? currentSchedule.map((item, i) => {
                                     const active = isClassActive(item.start, item.end, item.day);
                                     return (
@@ -558,10 +930,10 @@
                                             key={i} 
                                             ref={active ? activeCardRef : null}
                                             className={`${darkMode ? 'card-gradient-dark border-slate-800' : 'bg-white border-slate-100 card-gradient-light'} 
-                                                rounded-[1.5rem] p-5 border shadow-sm relative overflow-hidden animate-pop transition-all duration-300
+                                                rounded-[1.5rem] p-5 border shadow-sm relative overflow-hidden animate-pop transition-all duration-300 card-hover
                                                 ${active ? (darkMode ? 'active-glow-dark z-10 scale-[1.02] border-2' : 'active-glow-light z-10 scale-[1.02] border-2') : ''}`}
                                         >
-                                            <div className={`absolute top-0 left-0 bottom-0 w-1 ${getAccentColor(item.type)} ${active ? 'animate-pulse' : 'opacity-80'}`}></div>
+                                            <div className={`absolute top-0 left-0 bottom-0 w-1 ${active ? 'animate-pulse' : 'opacity-80'}`} style={{ backgroundColor: getAccentColorHex(item.type, accentColor) }}></div>
                                             
                                             <div className="flex flex-col sm:flex-row gap-4">
                                                 <div className="sm:w-28 shrink-0">
@@ -617,7 +989,7 @@
                                         </div>
                                     );
                                 }) : (
-                                    <div className="py-24 text-center">
+                                    <div className="py-24 text-center animate-fade">
                                         <div className="text-4xl mb-3 grayscale opacity-30">🏡</div>
                                         <h3 className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[10px]">Zi Liberă</h3>
                                     </div>
@@ -633,14 +1005,14 @@
                                     </div>
                                     <button 
                                         onClick={() => isAdmin ? setIsAdmin(false) : setIsPinModalOpen(true)}
-                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border transition-all ${isAdmin ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' : (darkMode ? 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50')}`}
+                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border transition-all card-hover ${isAdmin ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' : (darkMode ? 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50')}`}
                                     >
                                         {isAdmin ? '🔒 Blocare' : '🔓 Modifică'}
                                     </button>
                                 </div>
 
                                 {sortedExams.map((ex, i) => (
-                                    <div key={i} className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'} p-5 rounded-2xl border shadow-sm flex items-center justify-between group transition-all relative`}>
+                                    <div key={i} className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'} p-5 rounded-2xl border shadow-sm flex items-center justify-between group transition-all relative card-hover animate-slide`}>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest ${ex.type === 'Examen' ? (darkMode ? 'bg-rose-950 text-rose-400' : 'bg-rose-50 text-rose-600') : (darkMode ? 'bg-emerald-950 text-emerald-400' : 'bg-emerald-50 text-emerald-600')}`}>
@@ -681,10 +1053,44 @@
                             </div>
                         )}
 
+                        {view === 'anunturi' && (
+                            <div className="space-y-4 animate-pop">
+                                <div className="flex items-center justify-between px-1">
+                                    <div className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                                        Anunțuri • Observații • Teme • Teste
+                                    </div>
+                                    <button 
+                                        onClick={() => setShowNewAnnouncementModal(true)}
+                                        className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20 card-hover"
+                                    >
+                                        ➕ Anunț nou
+                                    </button>
+                                </div>
+
+                                {announcements.length === 0 ? (
+                                    <div className="py-16 text-center">
+                                        <div className="text-4xl mb-3">📢</div>
+                                        <h3 className="text-slate-400 font-bold tracking-[0.2em] uppercase text-[10px]">Nu există anunțuri</h3>
+                                        <p className="text-[9px] text-slate-500 mt-2">Adaugă primul anunț!</p>
+                                    </div>
+                                ) : (
+                                    announcements.map((announcement) => (
+                                        <AnnouncementCard 
+                                            key={announcement.id} 
+                                            announcement={announcement} 
+                                            darkMode={darkMode}
+                                            onEdit={handleEditAnnouncement}
+                                            onDelete={handleDeleteAnnouncement}
+                                        />
+                                    ))
+                                )}
+                            </div>
+                        )}
+
                         {view === 'links' && (
                             <div className="grid grid-cols-1 gap-3 animate-pop">
                                 {usefulLinks.map((link, i) => (
-                                    <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className={`${darkMode ? 'bg-slate-900 hover:bg-slate-800 border-slate-800' : 'bg-white hover:bg-slate-50 border-slate-100'} p-5 rounded-2xl border shadow-sm flex items-center gap-5 transition-all group`}>
+                                    <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className={`${darkMode ? 'bg-slate-900 hover:bg-slate-800 border-slate-800' : 'bg-white hover:bg-slate-50 border-slate-100'} p-5 rounded-2xl border shadow-sm flex items-center gap-5 transition-all group card-hover`}>
                                         <div className="text-3xl grayscale group-hover:grayscale-0 transition-all">{link.icon}</div>
                                         <div className="flex-1">
                                             <h3 className="font-black text-sm uppercase italic">{link.name}</h3>
@@ -701,7 +1107,7 @@
 
                     {/* MODAL PIN */}
                     {isPinModalOpen && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay">
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-xs p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
                                 <h3 className="text-sm font-black uppercase italic tracking-widest mb-4 text-center">Cod Acces</h3>
                                 <input 
@@ -711,11 +1117,11 @@
                                     onChange={(e) => setPinInput(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && handlePinSubmit()}
                                     placeholder="----"
-                                    className={`w-full bg-transparent border-2 p-3 rounded-2xl text-center text-xl font-bold tracking-[1em] focus:outline-none transition-all ${darkMode ? 'border-slate-800 bg-slate-950 focus:border-blue-500 text-white' : 'border-slate-100 focus:border-blue-500'}`}
+                                    className={`w-full border-2 p-3 rounded-2xl text-center text-xl font-bold tracking-[1em] focus:outline-none transition-all ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-500 focus:border-blue-500' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-300 focus:border-blue-500'}`}
                                 />
                                 <div className="grid grid-cols-2 gap-3 mt-6">
-                                    <button onClick={() => setIsPinModalOpen(false)} className={`py-3 rounded-2xl text-xs font-bold uppercase ${darkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>Anulează</button>
-                                    <button onClick={handlePinSubmit} className="bg-blue-600 text-white py-3 rounded-2xl text-xs font-black uppercase shadow-lg shadow-blue-500/20">Acces</button>
+                                    <button onClick={() => setIsPinModalOpen(false)} className={`py-3 rounded-2xl text-xs font-bold uppercase transition-all hover:scale-105 ${darkMode ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Anulează</button>
+                                    <button onClick={handlePinSubmit} className="bg-blue-600 text-white py-3 rounded-2xl text-xs font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all">Acces</button>
                                 </div>
                             </div>
                         </div>
@@ -723,7 +1129,7 @@
 
                     {/* MODAL EDITARE EXAMEN */}
                     {editModalExam && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay">
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
                                 <h3 className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Editare Detalii</h3>
                                 <h2 className="text-sm font-black uppercase italic tracking-tight mb-6 leading-tight">{editModalExam.subject}</h2>
@@ -735,7 +1141,7 @@
                                             type="text" 
                                             value={editModalExam.date} 
                                             onChange={(e) => setEditModalExam({...editModalExam, date: e.target.value})}
-                                            className={`w-full bg-transparent border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-800 bg-slate-950 text-white' : 'border-slate-50 bg-slate-50'}`}
+                                            className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
@@ -747,7 +1153,7 @@
                                                 placeholder="00:00"
                                                 maxLength="5"
                                                 onChange={(e) => setEditModalExam({...editModalExam, time: formatTimeInput(e.target.value)})}
-                                                className={`w-full bg-transparent border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-800 bg-slate-950 text-white' : 'border-slate-50 bg-slate-50'}`}
+                                                className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
                                             />
                                         </div>
                                         <div>
@@ -757,7 +1163,7 @@
                                                 value={editModalExam.room} 
                                                 placeholder="L120"
                                                 onChange={(e) => setEditModalExam({...editModalExam, room: e.target.value})}
-                                                className={`w-full bg-transparent border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-800 bg-slate-950 text-white' : 'border-slate-50 bg-slate-50'}`}
+                                                className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
                                             />
                                         </div>
                                     </div>
@@ -767,7 +1173,7 @@
                                     <button 
                                         disabled={isSaving}
                                         onClick={() => setEditModalExam(null)} 
-                                        className={`py-3 rounded-2xl text-xs font-bold uppercase transition-all ${darkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'} ${isSaving ? 'opacity-50' : ''}`}
+                                        className={`py-3 rounded-2xl text-xs font-bold uppercase transition-all hover:scale-105 ${darkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'} ${isSaving ? 'opacity-50' : ''}`}
                                     >
                                         Renunță
                                     </button>
@@ -777,6 +1183,86 @@
                                         className={`bg-emerald-600 text-white py-3 rounded-2xl text-xs font-black uppercase shadow-lg shadow-emerald-500/20 transition-all ${isSaving || !isOnline ? 'opacity-70 scale-95 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
                                     >
                                         {isSaving ? 'Se salvează...' : 'Salvează'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MODAL ANUNȚ NOU */}
+                    {showNewAnnouncementModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
+                            <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
+                                <h3 className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Anunț Nou</h3>
+                                
+                                <div className="space-y-4 mt-4">
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Tip anunț</label>
+                                        <select
+                                            value={newAnnouncement.type}
+                                            onChange={(e) => setNewAnnouncement({...newAnnouncement, type: e.target.value})}
+                                            className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                                        >
+                                            <option value="test" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📝 Test</option>
+                                            <option value="tema" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📋 Temă</option>
+                                            <option value="observatie" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>💡 Observație</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Titlu</label>
+                                        <input 
+                                            type="text" 
+                                            value={newAnnouncement.title} 
+                                            onChange={(e) => setNewAnnouncement({...newAnnouncement, title: e.target.value})}
+                                            className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Materia</label>
+                                        <select
+                                            value={newAnnouncement.subject || ''}
+                                            onChange={(e) => setNewAnnouncement({...newAnnouncement, subject: e.target.value})}
+                                            className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                                        >
+                                            <option value="" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>Fără materie specifică</option>
+                                            {subjectsList.map(subj => (
+                                                <option key={subj} value={subj} className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>{subj}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Conținut</label>
+                                        <textarea 
+                                            rows="3"
+                                            value={newAnnouncement.content} 
+                                            onChange={(e) => setNewAnnouncement({...newAnnouncement, content: e.target.value})}
+                                            className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none resize-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Data limită (opțional)</label>
+                                        <input 
+                                            type="text" 
+                                            value={newAnnouncement.dueDate} 
+                                            onChange={(e) => setNewAnnouncement({...newAnnouncement, dueDate: e.target.value})}
+                                            placeholder="ex: 25 Mai 2026"
+                                            className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 mt-8">
+                                    <button 
+                                        onClick={() => setShowNewAnnouncementModal(false)} 
+                                        className={`py-3 rounded-2xl text-xs font-bold uppercase transition-all hover:scale-105 ${darkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
+                                    >
+                                        Renunță
+                                    </button>
+                                    <button 
+                                        onClick={handleAddAnnouncement} 
+                                        className="bg-emerald-600 text-white py-3 rounded-2xl text-xs font-black uppercase shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all"
+                                    >
+                                        Adaugă
                                     </button>
                                 </div>
                             </div>
@@ -795,5 +1281,3 @@
     </script>
 </body>
 </html>
-
-
