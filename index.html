@@ -9,6 +9,23 @@
   gtag('js', new Date());
   gtag('config', 'G-YYKRP7FGL6');
 </script>
+   
+  <!-- Configurare Firebase cu datele tale reale -->
+<script>
+   window.__firebase_config = JSON.stringify({
+       apiKey: "AIzaSyAFDBBmMggXykckmf6aoIT1ZUBNN8nETKg",
+       authDomain: "orar727-a136f.firebaseapp.com",
+       projectId: "orar727-a136f",
+       storageBucket: "orar727-a136f.firebasestorage.app",
+       messagingSenderId: "466079941013",
+       appId: "1:466079941013:web:3a866aab777d3c3382369c",
+       measurementId: "G-KTDERL6NXK"
+   });
+   
+   window.__app_id = 'ipa-727-v1';
+   window.__initial_auth_token = null;
+</script>
+
    <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 <link rel="manifest" href="site.webmanifest">
@@ -101,8 +118,8 @@
     <!-- Script pentru inițializare Firebase (Modular SDK) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
@@ -113,9 +130,11 @@
         // Expunem obiectele necesare aplicației React
         window.FB = { 
             auth, db, appId, 
-            signInAnonymously, onAuthStateChanged, signInWithCustomToken, 
-            doc, setDoc, getDoc, onSnapshot 
+            signInAnonymously, onAuthStateChanged, 
+            doc, setDoc, onSnapshot 
         };
+        
+        console.log("Firebase inițializat cu succes!");
     </script>
 
     <!-- Script pentru aplicația React (transpilat de Babel) -->
@@ -130,8 +149,8 @@
             { id: 'aditivi', subject: 'Aditivi și ingrediente în industria alimentară', type: 'Examen', credits: 4, date: '', time: '', room: '' },
             { id: 'nutritie', subject: 'Principiile nutriției umane', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
             { id: 'analiza', subject: 'Analiză senzorială', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
-            { id: 'engleza', subject: 'Limba engleză IV', type: 'Colocviu', credits: 1, date: '', time: '', room: '' },
-            { id: 'sport', subject: 'Educaţie fizică şi sport IV', type: 'Colocviu', credits: 1, date: '', time: '', room: '' }
+            { id: 'engleza', subject: 'Limba engleză', type: 'Colocviu', credits: 1, date: '', time: '', room: '' },
+            { id: 'sport', subject: 'Educaţie fizică şi sport', type: 'Colocviu', credits: 1, date: '', time: '', room: '' }
         ];
 
         const scheduleData = [
@@ -171,25 +190,53 @@
             return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
         };
 
-        const parseExamDate = (dateStr) => {
-            if (!dateStr || dateStr.toLowerCase().includes('aşteptare')) return 999999;
-            const months = {
-                'ian': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'mai': 5, 'iun': 6,
-                'iul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'noi': 11, 'dec': 12
-            };
-            const parts = dateStr.toLowerCase().trim().split(' ');
-            const day = parseInt(parts[0]) || 0;
-            let monthIdx = 13;
-            if (parts[1]) {
-                const mName = parts[1].substring(0, 3);
-                monthIdx = months[mName] || 13;
+       const parseExamDate = (dateStr) => {
+    // examenele fără dată merg JOS
+    if (!dateStr || dateStr.toLowerCase().includes('aşteptare') || dateStr === '') {
+        return Infinity;
+    }
+
+    const months = {
+        'ianuarie': 1, 'ian': 1,
+        'februarie': 2, 'feb': 2,
+        'martie': 3, 'mar': 3,
+        'aprilie': 4, 'apr': 4,
+        'mai': 5,
+        'iunie': 6, 'iun': 6,
+        'iulie': 7, 'iul': 7,
+        'august': 8, 'aug': 8,
+        'septembrie': 9, 'sep': 9,
+        'octombrie': 10, 'oct': 10,
+        'noiembrie': 11, 'noi': 11,
+        'decembrie': 12, 'dec': 12
+    };
+
+    const cleanStr = dateStr.toLowerCase().trim();
+    const parts = cleanStr.split(' ');
+
+    if (parts.length >= 2) {
+        const day = parseInt(parts[0], 10);
+        let month = 0;
+
+        for (let [monthName, monthNum] of Object.entries(months)) {
+            if (parts[1].includes(monthName)) {
+                month = monthNum;
+                break;
             }
-            return (monthIdx * 100) + day;
-        };
+        }
+
+        if (day && month) {
+            return (2026 * 10000) + (month * 100) + day;
+        }
+    }
+
+    // fallback → tot JOS
+    return Infinity;
+};
 
         const usefulLinks = [
             { name: 'Moodle UPB', url: 'https://curs.upb.ro/', desc: 'Platforma oficială de cursuri', icon: '🎓' },
-            { name: 'Platformă Note (Studenti)', url: 'https://studenti.pub.ro/', desc: 'Note, prezențe și taxe', icon: '📝' },
+            { name: 'Platformă Note (Studenti)', url: 'https://studenti.pub.ro/', desc: 'Note, restanțe și taxe', icon: '📝' },
             { name: 'Site Facultate (ISB)', url: 'https://isb.pub.ro/', desc: 'Anunțuri și noutăți Ingineria Sistemelor Biotehnice', icon: '🏢' },
         ];
 
@@ -219,6 +266,7 @@
                 return Math.min(Math.max(percentage, 0), 100);
             }, [now]);
 
+            // ✅ SORTAREA CORECTĂ A EXAMENELOR
             const sortedExams = useMemo(() => {
                 return [...exams].sort((a, b) => parseExamDate(a.date) - parseExamDate(b.date));
             }, [exams]);
@@ -228,39 +276,45 @@
             const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ipa_theme') === 'dark');
             const activeCardRef = useRef(null);
 
-            // ✅ RULE 3: Auth First & wait for window.FB
+            // Autentificare Firebase
             useEffect(() => {
                 let unsubscribeAuth;
+                
                 const initAuth = async () => {
-                    // Așteptăm ca scriptul de tip module să expună window.FB
                     let retries = 0;
-                    while (!window.FB && retries < 20) {
+                    while (!window.FB && retries < 30) {
                         await new Promise(r => setTimeout(r, 200));
                         retries++;
                     }
 
                     if (window.FB) {
-                        const { auth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } = window.FB;
+                        const { auth, signInAnonymously, onAuthStateChanged } = window.FB;
+                        
                         try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                                await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
-                        } catch (e) {
-                            console.error("Auth init failed:", e);
+                            await signInAnonymously(auth);
+                            console.log("✅ Autentificare anonimă reușită");
+                        } catch (error) {
+                            console.error("❌ Eroare autentificare:", error);
                         }
-                        unsubscribeAuth = onAuthStateChanged(auth, (u) => {
-                            setUser(u);
-                            setIsOnline(!!u);
+                        
+                        unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+                            console.log("📡 Status autentificare:", user ? "autentificat" : "neautentificat");
+                            setUser(user);
+                            setIsOnline(!!user);
                         });
                     }
                 };
+                
                 initAuth();
-                return () => { if (unsubscribeAuth) unsubscribeAuth(); };
+                
+                return () => {
+                    if (unsubscribeAuth) {
+                        unsubscribeAuth();
+                    }
+                };
             }, []);
 
-            // ✅ Sincronizare Firestore
+            // Sincronizare Firestore
             useEffect(() => {
                 if (!user || !window.FB) return;
 
@@ -271,17 +325,23 @@
                     (snapshot) => {
                         if (snapshot.exists()) {
                             const data = snapshot.data();
-                            if (data && data.list) setExams(data.list);
+                            if (data && data.list) {
+                                setExams(data.list);
+                                console.log("📥 Date încărcate din Firebase");
+                            }
                         } else {
-                            // Seeding inițial
-                            setDoc(docRef, { list: defaultExams }, { merge: true }).catch(console.error);
+                            setDoc(docRef, { list: defaultExams }, { merge: true })
+                                .then(() => console.log("📤 Date inițiale create în Firebase"))
+                                .catch(console.error);
                         }
+                        setIsOnline(true);
                     },
                     (error) => {
-                        console.error("Snapshot error:", error);
+                        console.error("❌ Eroare sincronizare Firebase:", error);
                         setIsOnline(false);
                     }
                 );
+                
                 return () => unsubscribe();
             }, [user]);
             
@@ -359,7 +419,11 @@
             };
 
             const handleSaveExam = async (updatedExam) => {
-                if (!user || !window.FB) return;
+                if (!user || !window.FB) {
+                    alert("Nu ești conectat la Firebase!");
+                    return;
+                }
+                
                 setIsSaving(true);
                 try {
                     const { db, appId, doc, setDoc } = window.FB;
@@ -367,9 +431,10 @@
                     const newList = exams.map(e => e.id === updatedExam.id ? updatedExam : e);
                     await setDoc(docRef, { list: newList }, { merge: true });
                     setEditModalExam(null);
+                    
                 } catch (err) {
-                    console.error("Save Error:", err);
-                    alert("Eroare la scriere.");
+                    console.error("❌ Eroare la salvare:", err);
+                    alert("Eroare la scriere: " + err.message);
                 } finally {
                     setIsSaving(false);
                 }
@@ -420,7 +485,7 @@
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <div className={`w-20 h-1.5 rounded-full overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
-                                                    <div className="h-full bg-blue-50 transition-all duration-1000" style={{ width: `${semesterProgress}%` }}></div>
+                                                    <div className="h-full bg-blue-600 transition-all duration-1000" style={{ width: `${semesterProgress}%` }}></div>
                                                 </div>
                                                 <span className={`text-[9px] font-bold ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Semestru: {semesterProgress}% complet</span>
                                             </div>
@@ -442,7 +507,7 @@
 
                             <div className="max-w-2xl mx-auto flex gap-2 mb-4 bg-slate-100/50 dark:bg-slate-800/50 p-1 rounded-2xl border border-transparent dark:border-slate-800 shadow-inner">
                                 {[
-                                    { id: 'orar', label: 'Orar', icon: '⏰' },
+                                    { id: 'orar', label: 'Orar', icon: '📜' },
                                     { id: 'examene', label: 'Examene', icon: '📝' },
                                     { id: 'links', label: 'Link-uri', icon: '🔗' }
                                 ].map(tab => (
@@ -564,7 +629,7 @@
                             <div className="space-y-4 animate-pop">
                                 <div className="flex items-center justify-between px-1">
                                     <div className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                                        Planificare Sesiune 2026
+                                        Planificare Sesiune vara 2026
                                     </div>
                                     <button 
                                         onClick={() => isAdmin ? setIsAdmin(false) : setIsPinModalOpen(true)}
@@ -587,13 +652,13 @@
                                             </div>
                                             <h3 className="font-extrabold text-sm uppercase italic leading-tight">{ex.subject}</h3>
                                             {ex.room && (
-                                                <div className={`text-[9px] font-bold mt-1 uppercase italic ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                                                <div className={`text-[12px] font-bold mt-1 uppercase italic ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
                                                     📍 Sala: {ex.room}
                                                 </div>
                                             )}
                                         </div>
                                         <div className="text-right ml-4 flex items-center gap-3">
-                                            <div className={`px-3 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-tighter ${darkMode ? 'bg-slate-800 text-slate-500 border border-transparent' : 'bg-slate-50 text-slate-400 border border-transparent'} ${ex.date ? (darkMode ? 'bg-red-950/40 text-red-400 shadow-sm shadow-red-500/20 border-red-900/50' : 'bg-red-50 text-red-600 border-red-100') : ''}`}>
+                                            <div className={`px-3 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-tighter ${darkMode ? 'bg-slate-800 text-slate-500 border border-transparent' : 'bg-slate-50 text-slate-400 border border-transparent'} ${ex.date ? (darkMode ? 'bg-red-950/40 text-red-400 shadow-sm shadow-red-500/20 border-red-900/50' : 'bg-red-50 text-red-600 border-red-100') : ''}`}>
                                                 {ex.date ? `${ex.date.toUpperCase()} ${ex.time ? ` • ORA ${ex.time}` : ''}` : 'În așteptare'}
                                             </div>
                                             {isAdmin && (
@@ -610,7 +675,7 @@
                                 
                                 <div className="py-8 text-center px-6">
                                     <p className="text-[9px] font-bold text-slate-500 uppercase italic opacity-50 tracking-widest leading-loose">
-                                        {isAdmin ? "Modul de editare este ACTIV." : "Datele calendaristice sunt ordonate cronologic."}
+                                        {isAdmin ? "Modul de editare este ACTIV." : "Examenele sunt ordonate cronologic."}
                                     </p>
                                 </div>
                             </div>
@@ -623,7 +688,7 @@
                                         <div className="text-3xl grayscale group-hover:grayscale-0 transition-all">{link.icon}</div>
                                         <div className="flex-1">
                                             <h3 className="font-black text-sm uppercase italic">{link.name}</h3>
-                                            <p className="text-[10px] text-slate-500 font-medium">{link.desc}</p>
+                                            <p className="text-[10px] text-blue-500 font-medium">{link.desc}</p>
                                         </div>
                                         <div className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -730,3 +795,4 @@
     </script>
 </body>
 </html>
+
