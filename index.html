@@ -10,7 +10,7 @@
   gtag('config', 'G-YYKRP7FGL6');
 </script>
    
- <!-- Configurare Firebase cu datele tale reale -->
+<!-- Configurare Firebase cu datele tale reale -->
 <script>
    window.__firebase_config = JSON.stringify({
        apiKey: "AIzaSyAFDBBmMggXykckmf6aoIT1ZUBNN8nETKg",
@@ -270,7 +270,6 @@
         };
 
        const parseExamDate = (dateStr) => {
-            // examenele fără dată merg JOS
             if (!dateStr || dateStr.toLowerCase().includes('aşteptare') || dateStr === '') {
                 return Infinity;
             }
@@ -309,7 +308,6 @@
                 }
             }
 
-            // fallback → tot JOS
             return Infinity;
         };
 
@@ -802,38 +800,38 @@
                 <div className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100 pattern-dark' : 'bg-slate-50 text-slate-900 pattern-light'}`}>
                     <header className={`${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-50 shadow-sm transition-colors duration-300`}>
                         <div className={`px-6 pt-10 pb-4 ${accentColors[accentColor].gradient} text-white transition-all duration-500`}>
-                            <div className="max-w-2xl mx-auto flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="bg-white/20 w-11 h-11 rounded-xl shadow-xl flex items-center justify-center text-white text-xl backdrop-blur-sm transition-all duration-300">
+                            <div className="max-w-2xl mx-auto flex items-start sm:items-center justify-between mb-4 gap-2">
+                                <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                                    <div className="bg-white/20 w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-xl shadow-xl flex items-center justify-center text-white text-lg sm:text-xl backdrop-blur-sm transition-all duration-300">
                                         📅
                                     </div>
                                     <div>
-                                        <h1 className="text-xl font-black italic tracking-tight leading-none uppercase">IPA 727</h1>
-                                        <div className="flex flex-col gap-1.5 mt-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[9px] font-black px-2 py-0.5 rounded-full border border-white/30 bg-white/20 uppercase backdrop-blur-sm">
+                                        <h1 className="text-lg sm:text-xl font-black italic tracking-tight leading-none uppercase">IPA 727</h1>
+                                        <div className="flex flex-col gap-1.5 mt-1 sm:mt-2">
+                                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                                <span className="text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded-full border border-white/30 bg-white/20 uppercase backdrop-blur-sm whitespace-nowrap">
                                                     SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
                                                 </span>
-                                                <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${isOnline ? 'text-emerald-100 bg-emerald-500/30' : 'text-amber-100 bg-amber-500/30'}`}>
+                                                <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 whitespace-nowrap ${isOnline ? 'text-emerald-100 bg-emerald-500/30' : 'text-amber-100 bg-amber-500/30'}`}>
                                                     <span className={`status-dot ${isOnline ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
                                                     {isOnline ? 'CONECTAT' : 'CONECTARE...'}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <div className="w-20 h-1.5 rounded-full overflow-hidden bg-white/30">
+                                                <div className="w-16 sm:w-20 h-1.5 rounded-full overflow-hidden bg-white/30 shrink-0">
                                                     <div className="h-full bg-white transition-all duration-1000" style={{ width: `${semesterProgress}%` }}></div>
                                                 </div>
-                                                <span className="text-[9px] font-bold text-white/80">Semestru: {semesterProgress}% complet</span>
+                                                <span className="text-[8px] sm:text-[9px] font-bold text-white/80 whitespace-nowrap">Semestru: {semesterProgress}% complet</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                                     <select
                                         value={accentColor}
                                         onChange={(e) => setAccentColor(e.target.value)}
-                                        className="px-2 py-1.5 rounded-xl text-[9px] font-black uppercase bg-white/20 text-white border border-white/30 backdrop-blur-sm focus:outline-none transition-all cursor-pointer"
+                                        className="px-1.5 py-1.5 sm:px-2 sm:py-1.5 rounded-xl text-[8px] sm:text-[9px] font-black uppercase bg-white/20 text-white border border-white/30 backdrop-blur-sm focus:outline-none transition-all cursor-pointer"
                                     >
                                         {Object.entries(accentColors).map(([key, value]) => (
                                             <option key={key} value={key} className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>{value.name}</option>
@@ -841,18 +839,18 @@
                                     </select>
                                     <button 
                                         onClick={() => setDarkMode(!darkMode)}
-                                        className="p-2.5 rounded-xl bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm transition-all shadow-sm"
+                                        className="p-2 sm:p-2.5 rounded-xl bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm transition-all shadow-sm"
                                     >
                                         {darkMode ? (
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h1m-16 0h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h1m-16 0h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
                                         ) : (
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                                         )}
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="max-w-2xl mx-auto flex gap-2 mb-4 bg-white/10 p-1 rounded-2xl border border-transparent shadow-inner backdrop-blur-sm">
+                            <div className="max-w-2xl mx-auto flex gap-1 sm:gap-2 mb-4 bg-white/10 p-1 rounded-2xl border border-transparent shadow-inner backdrop-blur-sm overflow-x-auto no-scrollbar">
                                 {[
                                     { id: 'orar', label: 'Orar', icon: '📜' },
                                     { id: 'examene', label: 'Examene', icon: '📝' },
@@ -862,7 +860,7 @@
                                     <button 
                                         key={tab.id} 
                                         onClick={() => setView(tab.id)}
-                                        className={`flex-1 py-2 text-xs font-black uppercase tracking-tighter rounded-xl transition-all flex items-center justify-center gap-2 ${view === tab.id ? 'bg-white shadow-lg' : 'text-white hover:bg-white/20'}`}
+                                        className={`flex-1 min-w-fit py-2 px-2 text-[10px] sm:text-xs font-black uppercase tracking-tighter rounded-xl transition-all flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${view === tab.id ? 'bg-white shadow-lg' : 'text-white hover:bg-white/20'}`}
                                         style={view === tab.id ? { color: accentColors[accentColor].primary } : {}}
                                     >
                                         <span>{tab.icon}</span> {tab.label}
@@ -871,8 +869,8 @@
                             </div>
 
                             {view === 'orar' && (
-                                <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3 animate-pop">
-                                    <div className="bg-white/10 p-1 rounded-2xl flex backdrop-blur-sm">
+                                <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-3 animate-pop">
+                                    <div className="flex-1 bg-white/10 p-1 rounded-2xl flex backdrop-blur-sm">
                                         {['Toate', 'A', 'B'].map(g => (
                                             <button 
                                                 key={g} 
@@ -884,7 +882,7 @@
                                             </button>
                                         ))}
                                     </div>
-                                    <div className="bg-white/10 p-1 rounded-2xl flex backdrop-blur-sm">
+                                    <div className="flex-1 bg-white/10 p-1 rounded-2xl flex backdrop-blur-sm">
                                         {['Toate', 'Impară', 'Pară'].map(w => (
                                             <button 
                                                 key={w} 
@@ -1057,7 +1055,7 @@
                             <div className="space-y-4 animate-pop">
                                 <div className="flex items-center justify-between px-1">
                                     <div className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                                        Anunțuri • Observații • Teme • Teste
+                                        Anunțuri • Materiale • Teste • Teme
                                     </div>
                                     <button 
                                         onClick={() => setShowNewAnnouncementModal(true)}
