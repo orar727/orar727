@@ -162,15 +162,25 @@
         }
 
         /* Gradient Headers */
-        .gradient-header-blue {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-        }
-        .gradient-header-green {
-            background: linear-gradient(135deg, #059669, #10b981);
-        }
-        .gradient-header-purple {
-            background: linear-gradient(135deg, #7c3aed, #c026d3);
-        }
+        .gradient-header-blue { background: linear-gradient(135deg, #2563eb, #7c3aed); }
+        .gradient-header-green { background: linear-gradient(135deg, #059669, #10b981); }
+        .gradient-header-purple { background: linear-gradient(135deg, #7c3aed, #c026d3); }
+        .gradient-header-rose { background: linear-gradient(135deg, #e11d48, #fb7185); }
+        .gradient-header-amber { background: linear-gradient(135deg, #d97706, #fbbf24); }
+        .gradient-header-cyan { background: linear-gradient(135deg, #0891b2, #22d3ee); }
+        .gradient-header-orange { background: linear-gradient(135deg, #ea580c, #f97316); }
+        .gradient-header-teal { background: linear-gradient(135deg, #0d9488, #2dd4bf); }
+        .gradient-header-pink { background: linear-gradient(135deg, #db2777, #f472b6); }
+        .gradient-header-indigo { background: linear-gradient(135deg, #4f46e5, #818cf8); }
+        .gradient-header-red { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .gradient-header-yellow { background: linear-gradient(135deg, #ca8a04, #facc15); }
+        .gradient-header-lime { background: linear-gradient(135deg, #65a30d, #bef264); }
+        .gradient-header-emerald { background: linear-gradient(135deg, #10b981, #6ee7b7); }
+        .gradient-header-violet { background: linear-gradient(135deg, #8b5cf6, #c4b5fd); }
+        .gradient-header-fuchsia { background: linear-gradient(135deg, #c026d3, #f0abfc); }
+        .gradient-header-sky { background: linear-gradient(135deg, #0284c7, #7dd3fc); }
+        .gradient-header-stone { background: linear-gradient(135deg, #78716c, #d6d3d1); }
+        .gradient-header-zinc { background: linear-gradient(135deg, #71717a, #d4d4d8); }
     </style>
 </head>
 <body>
@@ -259,7 +269,23 @@
         const accentColors = {
             blue: { primary: '#2563eb', light: '#bfdbfe', dark: '#1e40af', gradient: 'gradient-header-blue', name: 'Albastru' },
             green: { primary: '#059669', light: '#a7f3d0', dark: '#065f46', gradient: 'gradient-header-green', name: 'Verde' },
-            purple: { primary: '#7c3aed', light: '#ddd6fe', dark: '#5b21b6', gradient: 'gradient-header-purple', name: 'Mov' }
+            purple: { primary: '#7c3aed', light: '#ddd6fe', dark: '#5b21b6', gradient: 'gradient-header-purple', name: 'Mov' },
+            rose: { primary: '#e11d48', light: '#ffe4e6', dark: '#9f1239', gradient: 'gradient-header-rose', name: 'Rose' },
+            amber: { primary: '#d97706', light: '#fef3c7', dark: '#92400e', gradient: 'gradient-header-amber', name: 'Amber' },
+            cyan: { primary: '#0891b2', light: '#cffafe', dark: '#164e63', gradient: 'gradient-header-cyan', name: 'Cyan' },
+            orange: { primary: '#ea580c', light: '#ffedd5', dark: '#9a3412', gradient: 'gradient-header-orange', name: 'Orange' },
+            teal: { primary: '#0d9488', light: '#ccfbf1', dark: '#115e59', gradient: 'gradient-header-teal', name: 'Teal' },
+            pink: { primary: '#db2777', light: '#fce7f3', dark: '#831843', gradient: 'gradient-header-pink', name: 'Pink' },
+            indigo: { primary: '#4f46e5', light: '#e0e7ff', dark: '#312e81', gradient: 'gradient-header-indigo', name: 'Indigo' },
+            red: { primary: '#dc2626', light: '#fee2e2', dark: '#7f1d1d', gradient: 'gradient-header-red', name: 'Roșu' },
+            yellow: { primary: '#ca8a04', light: '#fef9c3', dark: '#713f12', gradient: 'gradient-header-yellow', name: 'Galben' },
+            lime: { primary: '#65a30d', light: '#ecfccb', dark: '#3f6212', gradient: 'gradient-header-lime', name: 'Lime' },
+            emerald: { primary: '#10b981', light: '#d1fae5', dark: '#064e3b', gradient: 'gradient-header-emerald', name: 'Emerald' },
+            violet: { primary: '#8b5cf6', light: '#ede9fe', dark: '#4c1d95', gradient: 'gradient-header-violet', name: 'Violet' },
+            fuchsia: { primary: '#c026d3', light: '#fae8ff', dark: '#701a75', gradient: 'gradient-header-fuchsia', name: 'Fuchsia' },
+            sky: { primary: '#0284c7', light: '#e0f2fe', dark: '#075985', gradient: 'gradient-header-sky', name: 'Sky' },
+            stone: { primary: '#78716c', light: '#e7e5e4', dark: '#44403c', gradient: 'gradient-header-stone', name: 'Piatră' },
+            zinc: { primary: '#71717a', light: '#e4e4e7', dark: '#3f3f46', gradient: 'gradient-header-zinc', name: 'Zinc' }
         };
 
         const getWeekNumber = (d) => {
@@ -1283,4 +1309,3 @@
     </script>
 </body>
 </html>
-
