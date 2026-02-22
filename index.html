@@ -478,8 +478,8 @@
                             )}
                             <p className="text-sm text-red-600 dark:text-red-400 mb-2 break-words whitespace-pre-wrap">{announcement.content}</p>
                             
-                            {/* AFISARE FISIER IN CARD */}
-                            {announcement.fileData && (
+                            {/* AFISARE FISIER VECHI (COMPATIBILITATE PENTRU CELE DEJA URCATE) */}
+                            {announcement.fileData && !announcement.attachedFiles && (
                                 <div className="mb-3">
                                     <a 
                                         href={announcement.fileData} 
@@ -488,6 +488,22 @@
                                     >
                                         📥 DESCARCĂ: {announcement.fileName?.substring(0, 15)}...
                                     </a>
+                                </div>
+                            )}
+
+                            {/* AFISARE FISIERE MULTIPLE NOI */}
+                            {announcement.attachedFiles && announcement.attachedFiles.length > 0 && (
+                                <div className="mb-3 flex flex-wrap gap-2">
+                                    {announcement.attachedFiles.map((file, idx) => (
+                                        <a 
+                                            key={idx}
+                                            href={file.data} 
+                                            download={file.name || 'material'}
+                                            className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[9px] font-black uppercase border transition-all ${darkMode ? 'bg-blue-900/30 border-blue-800 text-blue-400 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
+                                        >
+                                            📥 {file.name?.substring(0, 15)}...
+                                        </a>
+                                    ))}
                                 </div>
                             )}
 
@@ -542,8 +558,7 @@
                 type: 'tema',
                 subject: '',
                 dueDate: '',
-                fileData: null,
-                fileName: ''
+                attachedFiles: [] // Logica modificata pentru a suporta mai multe fisiere
             });
             
             const currentWeekParity = useMemo(() => {
@@ -779,7 +794,7 @@
                     await addDoc(announcementsRef, announcementData);
                     
                     setShowNewAnnouncementModal(false);
-                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '', fileData: null, fileName: '' });
+                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '', attachedFiles: [] });
                 } catch (err) {
                     console.error("❌ Eroare la adăugare anunț:", err);
                     alert("Eroare la salvare: " + err.message);
@@ -1294,35 +1309,94 @@
                                         />
                                     </div>
 
-                                    {/* SECTIUNE INCARCARE FISIER (25 MB) */}
+                                    {/* SECTIUNE INCARCARE FISIERE MULTIPLE (inclusiv poze cu compresie) */}
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Încarcă Material (PDF/Foto - Max 25MB)</label>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Încarcă Materiale (Poți selecta mai multe - Max 25MB)</label>
                                         <input 
                                             type="file" 
+                                            multiple
                                             accept="application/pdf,image/*"
-                                            onChange={(e) => {
-                                                const file = e.target.files[0];
-                                                if (file) {
-                                                    if (file.size > 25 * 1024 * 1024) {
-                                                        alert("Fișierul depășește limita de 25MB.");
-                                                        e.target.value = "";
-                                                        return;
-                                                    }
-                                                    const reader = new FileReader();
-                                                    reader.onloadend = () => {
-                                                        setNewAnnouncement({
-                                                            ...newAnnouncement, 
-                                                            fileData: reader.result, 
-                                                            fileName: file.name
+                                            onChange={async (e) => {
+                                                const files = Array.from(e.target.files);
+                                                if (!files.length) return;
+
+                                                const processedFiles = [];
+
+                                                for (let file of files) {
+                                                    if (file.type === 'application/pdf') {
+                                                        if (file.size > 25 * 1024 * 1024) {
+                                                            alert(`Atenție: PDF-ul ${file.name} are peste 25MB. PDF-urile nu pot fi comprimate automat ca pozele, așa că se va încerca salvarea la dimensiunea originală.`);
+                                                        }
+                                                        const reader = new FileReader();
+                                                        const base64 = await new Promise(resolve => {
+                                                            reader.onloadend = () => resolve(reader.result);
+                                                            reader.readAsDataURL(file);
                                                         });
-                                                    };
-                                                    reader.readAsDataURL(file);
+                                                        processedFiles.push({ name: file.name, data: base64 });
+                                                    } else if (file.type.startsWith('image/')) {
+                                                        // Pentru imagini, aplicăm compresia prin Canvas
+                                                        const reader = new FileReader();
+                                                        const base64 = await new Promise(resolve => {
+                                                            reader.onload = (event) => {
+                                                                const img = new Image();
+                                                                img.onload = () => {
+                                                                    const canvas = document.createElement('canvas');
+                                                                    let width = img.width;
+                                                                    let height = img.height;
+
+                                                                    const MAX_WIDTH = 2000;
+                                                                    const MAX_HEIGHT = 2000;
+
+                                                                    if (width > height) {
+                                                                        if (width > MAX_WIDTH) {
+                                                                            height *= MAX_WIDTH / width;
+                                                                            width = MAX_WIDTH;
+                                                                        }
+                                                                    } else {
+                                                                        if (height > MAX_HEIGHT) {
+                                                                            width *= MAX_HEIGHT / height;
+                                                                            height = MAX_HEIGHT;
+                                                                        }
+                                                                    }
+
+                                                                    canvas.width = width;
+                                                                    canvas.height = height;
+                                                                    const ctx = canvas.getContext('2d');
+                                                                    ctx.drawImage(img, 0, 0, width, height);
+                                                                    resolve(canvas.toDataURL('image/jpeg', 0.8));
+                                                                };
+                                                                img.src = event.target.result;
+                                                            };
+                                                            reader.readAsDataURL(file);
+                                                        });
+                                                        processedFiles.push({ name: file.name.split('.')[0] + '.jpg', data: base64 });
+                                                    }
                                                 }
+
+                                                setNewAnnouncement(prev => ({
+                                                    ...prev, 
+                                                    attachedFiles: [...(prev.attachedFiles || []), ...processedFiles]
+                                                }));
+                                                
+                                                // Reset input ca sa poti adauga din nou alte fisiere
+                                                e.target.value = "";
                                             }}
                                             className={`w-full border-2 p-2 rounded-xl text-[10px] focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
                                         />
-                                        {newAnnouncement.fileName && (
-                                            <p className="text-[8px] font-bold text-emerald-500 mt-1 ml-1">✅ Fișier selectat: {newAnnouncement.fileName}</p>
+                                        {newAnnouncement.attachedFiles && newAnnouncement.attachedFiles.length > 0 && (
+                                            <div className="mt-2 space-y-1">
+                                                {newAnnouncement.attachedFiles.map((f, idx) => (
+                                                    <p key={idx} className="text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center bg-emerald-50 dark:bg-emerald-900/30 p-1.5 rounded">
+                                                        <span>✅ {f.name.substring(0, 25)}{f.name.length > 25 ? '...' : ''}</span>
+                                                        <span 
+                                                            className="text-red-500 cursor-pointer px-2 text-xs hover:scale-125 transition-all" 
+                                                            onClick={() => setNewAnnouncement(prev => ({...prev, attachedFiles: prev.attachedFiles.filter((_, i) => i !== idx)}))}
+                                                        >
+                                                            ❌
+                                                        </span>
+                                                    </p>
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
