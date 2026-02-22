@@ -225,7 +225,7 @@
         ];
 
         const scheduleData = [
-            { day: 'Luni', start: '08:00', end: '11:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. drd. ing. Ionescu D.', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'A', week: 'S. Impară' },
+            { day: 'Luni', start: '08:00', end: '09:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. drd. ing. Ionescu D.', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'A', week: 'S. Impară' },
             { day: 'Luni', start: '08:00', end: '11:50', subject: 'Inocuitatea produselor alimentare', type: 'Laborator', prof: 'Sl. dr. ing. Crăciun L.', email: 'luminita.craciun@upb.ro', room: 'I308 Polizu', group: 'B', week: 'Săpt. 8-14' },
             { day: 'Marți', start: '10:00', end: '11:50', subject: 'Operații unitare în industria alimentară 2', type: 'Curs', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'L120 Polizu', group: 'Toți', week: 'Toate' },
             { day: 'Marți', start: '12:00', end: '13:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Curs', prof: 'Prof. dr. ing. Stan Raluca', email: 'raluca.stan@upb.ro', room: 'L120 Polizu', group: 'Toți', week: 'Toate' },
@@ -378,6 +378,7 @@
                     case 'test': return '📝';
                     case 'tema': return '📋';
                     case 'observatie': return '💡';
+                    case 'materiale': return '📁';
                     default: return '📢';
                 }
             };
@@ -387,6 +388,7 @@
                     case 'test': return 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
                     case 'tema': return 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400';
                     case 'observatie': return 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400';
+                    case 'materiale': return 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
                     default: return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
                 }
             };
@@ -408,6 +410,7 @@
                                 <option value="test" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📝 Test</option>
                                 <option value="tema" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📋 Temă</option>
                                 <option value="observatie" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>💡 Observație</option>
+                                <option value="materiale" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📁 Materiale</option>
                             </select>
                             <input
                                 type="text"
@@ -467,13 +470,27 @@
                             <div className="flex items-center justify-between mb-1">
                                 <h3 className="font-extrabold text-sm uppercase italic">{announcement.title}</h3>
                                 <span className={`text-[8px] font-black px-2 py-1 rounded-full ${getTypeColor(announcement.type)}`}>
-                                    {announcement.type === 'test' ? 'TEST' : announcement.type === 'tema' ? 'TEMĂ' : 'OBSERVAȚIE'}
+                                    {announcement.type === 'test' ? 'TEST' : announcement.type === 'tema' ? 'TEMĂ' : announcement.type === 'materiale' ? 'MATERIALE' : 'OBSERVAȚIE'}
                                 </span>
                             </div>
                             {announcement.subject && (
                                 <p className="text-[10px] font-bold text-green-500 mb-1">📚 {announcement.subject}</p>
                             )}
                             <p className="text-sm text-red-600 dark:text-red-400 mb-2 break-words whitespace-pre-wrap">{announcement.content}</p>
+                            
+                            {/* AFISARE FISIER IN CARD */}
+                            {announcement.fileData && (
+                                <div className="mb-3">
+                                    <a 
+                                        href={announcement.fileData} 
+                                        download={announcement.fileName || 'material'}
+                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[9px] font-black uppercase border transition-all ${darkMode ? 'bg-blue-900/30 border-blue-800 text-blue-400 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
+                                    >
+                                        📥 DESCARCĂ: {announcement.fileName?.substring(0, 15)}...
+                                    </a>
+                                </div>
+                            )}
+
                             {announcement.dueDate && (
                                 <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 mb-2">⏰ Data limită: {announcement.dueDate}</p>
                             )}
@@ -524,7 +541,9 @@
                 content: '', 
                 type: 'tema',
                 subject: '',
-                dueDate: ''
+                dueDate: '',
+                fileData: null,
+                fileName: ''
             });
             
             const currentWeekParity = useMemo(() => {
@@ -754,13 +773,13 @@
                     
                     const announcementData = {
                         ...newAnnouncement,
-                        date: new Date().toISOString() // Salvăm strict informațiile postării (fără autor)
+                        date: new Date().toISOString() 
                     };
                     
                     await addDoc(announcementsRef, announcementData);
                     
                     setShowNewAnnouncementModal(false);
-                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '' });
+                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '', fileData: null, fileName: '' });
                 } catch (err) {
                     console.error("❌ Eroare la adăugare anunț:", err);
                     alert("Eroare la salvare: " + err.message);
@@ -871,11 +890,7 @@
                                         onClick={() => setDarkMode(!darkMode)}
                                         className="flex justify-center items-center p-1.5 sm:p-2 rounded-xl bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm transition-all shadow-sm"
                                     >
-                                        {darkMode ? (
-                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h1m-16 0h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
-                                        ) : (
-                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                                        )}
+                                        {darkMode ? '☀️' : '🌙'}
                                     </button>
                                 </div>
                             </div>
@@ -1085,7 +1100,7 @@
                             <div className="space-y-4 animate-pop">
                                 <div className="flex items-center justify-between px-1">
                                     <div className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                                        Observații • Teme • Teste
+                                        Observații • Teme • Materiale
                                     </div>
                                     <button 
                                         onClick={() => setShowNewAnnouncementModal(true)}
@@ -1234,10 +1249,11 @@
                                             <option value="test" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📝 Test</option>
                                             <option value="tema" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📋 Temă</option>
                                             <option value="observatie" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>💡 Observație</option>
+                                            <option value="materiale" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📁 Materiale / Referate</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Titlu</label>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Titlu (obligatoriu) </label>
                                         <input 
                                             type="text" 
                                             value={newAnnouncement.title} 
@@ -1246,7 +1262,7 @@
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Materia</label>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Materia (opțional) </label>
                                         <select
                                             value={newAnnouncement.subject || ''}
                                             onChange={(e) => setNewAnnouncement({...newAnnouncement, subject: e.target.value})}
@@ -1259,7 +1275,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Conținut</label>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Conținut (obligatoriu) </label>
                                         <textarea 
                                             rows="3"
                                             value={newAnnouncement.content} 
@@ -1276,6 +1292,38 @@
                                             placeholder="ex: 25 Mai 2026"
                                             className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
                                         />
+                                    </div>
+
+                                    {/* SECTIUNE INCARCARE FISIER (25 MB) */}
+                                    <div>
+                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Încarcă Material (PDF/Foto - Max 25MB)</label>
+                                        <input 
+                                            type="file" 
+                                            accept="application/pdf,image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    if (file.size > 25 * 1024 * 1024) {
+                                                        alert("Fișierul depășește limita de 25MB.");
+                                                        e.target.value = "";
+                                                        return;
+                                                    }
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setNewAnnouncement({
+                                                            ...newAnnouncement, 
+                                                            fileData: reader.result, 
+                                                            fileName: file.name
+                                                        });
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            className={`w-full border-2 p-2 rounded-xl text-[10px] focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                                        />
+                                        {newAnnouncement.fileName && (
+                                            <p className="text-[8px] font-bold text-emerald-500 mt-1 ml-1">✅ Fișier selectat: {newAnnouncement.fileName}</p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -1309,4 +1357,3 @@
     </script>
 </body>
 </html>
-
