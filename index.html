@@ -583,7 +583,7 @@
                             {announcement.subject && (
                                 <p className="text-[10px] font-bold text-green-500 mb-1">📚 {announcement.subject}</p>
                             )}
-                            <p className="text-sm text-red-600 dark:text-red-400 mb-2 break-words whitespace-pre-wrap">{announcement.content}</p>
+                            <p className={`text-sm mb-2 break-words whitespace-pre-wrap ${darkMode ? 'text-red-400' : 'text-red-500'}`}>{announcement.content}</p>
                             
                             {/* AFISARE FISIER VECHI SINGULAR */}
                             {announcement.fileData && (!announcement.attachedFiles || announcement.attachedFiles.length === 0) && (
@@ -1386,7 +1386,7 @@
                     {showNicknamePrompt && (
                         <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
-                                <h3 className={`text-sm font-black uppercase italic tracking-widest mb-2 text-center ${darkMode ? 'text-white' : 'text-slate-900'}`}>Numele tău?</h3>
+                                <h3 className={`text-sm font-black uppercase italic tracking-widest mb-2 text-center ${darkMode ? 'text-white' : 'text-slate-900'}`}>Numele tău este</h3>
                                 <p className={`text-[10px] text-center mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                                     Alege un nickname pentru a vedea colegii cine postează anunțurile (opțional).
                                 </p>
