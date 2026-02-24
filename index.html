@@ -198,7 +198,6 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'ipa-727-v1';
 
-        // Expunem obiectele necesare aplicației React
         window.FB = { 
             auth, db, appId, 
             signInAnonymously, onAuthStateChanged, 
@@ -296,7 +295,6 @@
         };
 
        const parseExamDate = (dateStr) => {
-            // examenele fără dată merg JOS
             if (!dateStr || dateStr.toLowerCase().includes('aşteptare') || dateStr === '') {
                 return Infinity;
             }
@@ -334,8 +332,6 @@
                     return (2026 * 10000) + (month * 100) + day;
                 }
             }
-
-            // fallback → tot JOS
             return Infinity;
         };
 
@@ -412,6 +408,7 @@
                                 <option value="observatie" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>💡 Observație</option>
                                 <option value="materiale" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📁 Materiale</option>
                             </select>
+                            
                             <input
                                 type="text"
                                 value={editedAnnouncement.title}
@@ -443,6 +440,115 @@
                                 placeholder="Data limită (ex: 25 Mai 2026)"
                                 className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
                             />
+
+                            {/* SECTIUNE INCARCARE / GESTIONARE FISIERE IN EDITARE */}
+                            <div>
+                                <label className={`text-[9px] font-black uppercase tracking-widest opacity-60 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                                    Încarcă / Modifică Materiale (Max 25MB)
+                                </label>
+                                <input 
+                                    type="file" 
+                                    multiple
+                                    accept="application/pdf,image/*"
+                                    onChange={async (e) => {
+                                        const files = Array.from(e.target.files);
+                                        if (!files.length) return;
+
+                                        const processedFiles = [];
+
+                                        for (let file of files) {
+                                            if (file.type === 'application/pdf') {
+                                                if (file.size > 25 * 1024 * 1024) {
+                                                    alert(`Atenție: PDF-ul ${file.name} are peste 25MB. Acesta nu va fi comprimat.`);
+                                                }
+                                                const reader = new FileReader();
+                                                const base64 = await new Promise(resolve => {
+                                                    reader.onloadend = () => resolve(reader.result);
+                                                    reader.readAsDataURL(file);
+                                                });
+                                                processedFiles.push({ name: file.name, data: base64 });
+                                            } else if (file.type.startsWith('image/')) {
+                                                const reader = new FileReader();
+                                                const base64 = await new Promise(resolve => {
+                                                    reader.onload = (event) => {
+                                                        const img = new Image();
+                                                        img.onload = () => {
+                                                            const canvas = document.createElement('canvas');
+                                                            let width = img.width;
+                                                            let height = img.height;
+
+                                                            const MAX_WIDTH = 2000;
+                                                            const MAX_HEIGHT = 2000;
+
+                                                            if (width > height) {
+                                                                if (width > MAX_WIDTH) {
+                                                                    height *= MAX_WIDTH / width;
+                                                                    width = MAX_WIDTH;
+                                                                }
+                                                            } else {
+                                                                if (height > MAX_HEIGHT) {
+                                                                    width *= MAX_HEIGHT / height;
+                                                                    height = MAX_HEIGHT;
+                                                                }
+                                                            }
+
+                                                            canvas.width = width;
+                                                            canvas.height = height;
+                                                            const ctx = canvas.getContext('2d');
+                                                            ctx.drawImage(img, 0, 0, width, height);
+                                                            resolve(canvas.toDataURL('image/jpeg', 0.8));
+                                                        };
+                                                        img.src = event.target.result;
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                });
+                                                processedFiles.push({ name: file.name.split('.')[0] + '.jpg', data: base64 });
+                                            }
+                                        }
+
+                                        setEditedAnnouncement(prev => ({
+                                            ...prev, 
+                                            attachedFiles: [...(prev.attachedFiles || []), ...processedFiles]
+                                        }));
+                                        
+                                        e.target.value = "";
+                                    }}
+                                    className={`w-full border-2 p-2 rounded-xl text-[10px] focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
+                                />
+                                
+                                {/* FIȘIER VECHI SINGULAR - POSIBILITATE STERGERE */}
+                                {editedAnnouncement.fileData && (!editedAnnouncement.attachedFiles || editedAnnouncement.attachedFiles.length === 0) && (
+                                    <div className="mt-2 space-y-1">
+                                        <p className={`text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center p-1.5 rounded ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
+                                            <span>✅ {editedAnnouncement.fileName?.substring(0, 25) || 'Fisier_existent'}...</span>
+                                            <span 
+                                                className="text-red-500 cursor-pointer px-2 text-xs hover:scale-125 transition-all" 
+                                                onClick={() => setEditedAnnouncement(prev => ({...prev, fileData: null, fileName: null}))}
+                                            >
+                                                ❌
+                                            </span>
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* FIȘIERE MULTIPLE NOI - POSIBILITATE STERGERE */}
+                                {editedAnnouncement.attachedFiles && editedAnnouncement.attachedFiles.length > 0 && (
+                                    <div className="mt-2 space-y-1">
+                                        {editedAnnouncement.attachedFiles.map((f, idx) => (
+                                            <p key={idx} className={`text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center p-1.5 rounded ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
+                                                <span>✅ {f.name.substring(0, 25)}{f.name.length > 25 ? '...' : ''}</span>
+                                                <span 
+                                                    className="text-red-500 cursor-pointer px-2 text-xs hover:scale-125 transition-all" 
+                                                    onClick={() => setEditedAnnouncement(prev => ({...prev, attachedFiles: prev.attachedFiles.filter((_, i) => i !== idx)}))}
+                                                >
+                                                    ❌
+                                                </span>
+                                            </p>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="flex gap-2 mt-2">
                                 <button
                                     onClick={handleSave}
@@ -468,18 +574,19 @@
                         <span className="text-2xl">{getTypeIcon(announcement.type)}</span>
                         <div className="flex-1 overflow-hidden">
                             <div className="flex items-center justify-between mb-1">
-                                <h3 className="font-extrabold text-sm uppercase italic">{announcement.title}</h3>
-                                <span className={`text-[8px] font-black px-2 py-1 rounded-full ${getTypeColor(announcement.type)}`}>
+                                <h3 className={`font-extrabold text-sm uppercase italic ${darkMode ? 'text-white' : 'text-slate-900'}`}>{announcement.title}</h3>
+                                <span className={`text-[8px] font-black px-2 py-1 rounded-full flex-shrink-0 ${getTypeColor(announcement.type)}`}>
                                     {announcement.type === 'test' ? 'TEST' : announcement.type === 'tema' ? 'TEMĂ' : announcement.type === 'materiale' ? 'MATERIALE' : 'OBSERVAȚIE'}
                                 </span>
                             </div>
+                            
                             {announcement.subject && (
                                 <p className="text-[10px] font-bold text-green-500 mb-1">📚 {announcement.subject}</p>
                             )}
                             <p className="text-sm text-red-600 dark:text-red-400 mb-2 break-words whitespace-pre-wrap">{announcement.content}</p>
                             
-                            {/* AFISARE FISIER VECHI (COMPATIBILITATE PENTRU CELE DEJA URCATE) */}
-                            {announcement.fileData && !announcement.attachedFiles && (
+                            {/* AFISARE FISIER VECHI SINGULAR */}
+                            {announcement.fileData && (!announcement.attachedFiles || announcement.attachedFiles.length === 0) && (
                                 <div className="mb-3">
                                     <a 
                                         href={announcement.fileData} 
@@ -510,13 +617,15 @@
                             {announcement.dueDate && (
                                 <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 mb-2">⏰ Data limită: {announcement.dueDate}</p>
                             )}
-                            <div className="flex items-center justify-end text-[9px] font-bold text-slate-500">
-                                <span>{new Date(announcement.date).toLocaleDateString('ro-RO')}</span>
+                            <div className="flex items-center justify-between font-bold mt-2">
+                                {announcement.author ? (
+                                    <span className={`text-[11px] italic opacity-80 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{announcement.author}</span>
+                                ) : <span></span>}
+                                <span className="text-[9px] text-slate-500">{new Date(announcement.date).toLocaleDateString('ro-RO')}</span>
                             </div>
                         </div>
                     </div>
                     
-                    {/* Butoane editare/ștergere pentru toată lumea */}
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                         <button
                             onClick={() => setIsEditing(true)}
@@ -552,14 +661,49 @@
             const [announcements, setAnnouncements] = useState([]);
             const [showNewAnnouncementModal, setShowNewAnnouncementModal] = useState(false);
             const [accentColor, setAccentColor] = useState(() => localStorage.getItem('ipa_accent') || 'blue');
+            
+            // STATE NICKNAME
+            const [nickname, setNickname] = useState(() => localStorage.getItem('ipa_nickname') || '');
+            const [showNicknamePrompt, setShowNicknamePrompt] = useState(false);
+            const [tempNickname, setTempNickname] = useState('');
+
             const [newAnnouncement, setNewAnnouncement] = useState({ 
                 title: '', 
                 content: '', 
                 type: 'tema',
                 subject: '',
                 dueDate: '',
-                attachedFiles: [] // Logica modificata pentru a suporta mai multe fisiere
+                attachedFiles: [],
+                author: nickname || '' 
             });
+
+            // LOGICA VERIFICARE SNOOZE NICKNAME
+            useEffect(() => {
+                const storedNickname = localStorage.getItem('ipa_nickname');
+                if (!storedNickname) {
+                    const snoozeDateStr = localStorage.getItem('ipa_nickname_snooze');
+                    if (snoozeDateStr) {
+                        const snoozeDate = new Date(snoozeDateStr);
+                        const diffTime = Math.abs(new Date() - snoozeDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        if (diffDays > 10) {
+                            setShowNicknamePrompt(true);
+                        }
+                    } else {
+                        setShowNicknamePrompt(true);
+                    }
+                }
+            }, []);
+
+            const currentSemWeek = useMemo(() => {
+                const semStart = new Date(2026, 1, 23); 
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                if (today < semStart) return 1; 
+                
+                const diffTime = today.getTime() - semStart.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                return Math.floor(diffDays / 7) + 1;
+            }, [now]);
             
             const currentWeekParity = useMemo(() => {
                 const weekNum = getWeekNumber(now);
@@ -575,7 +719,6 @@
                 return Math.min(Math.max(percentage, 0), 100);
             }, [now]);
 
-            // ✅ SORTAREA CORECTĂ A EXAMENELOR
             const sortedExams = useMemo(() => {
                 return [...exams].sort((a, b) => parseExamDate(a.date) - parseExamDate(b.date));
             }, [exams]);
@@ -585,12 +728,10 @@
             const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ipa_theme') === 'dark');
             const activeCardRef = useRef(null);
 
-            // Simulare încărcare interfață 
             useEffect(() => {
                 setTimeout(() => setIsLoading(false), 1200);
             }, []);
 
-            // Autentificare Firebase
             useEffect(() => {
                 let unsubscribeAuth;
                 
@@ -606,13 +747,11 @@
                         
                         try {
                             await signInAnonymously(auth);
-                            console.log("✅ Autentificare anonimă reușită");
                         } catch (error) {
                             console.error("❌ Eroare autentificare:", error);
                         }
                         
                         unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-                            console.log("📡 Status autentificare:", user ? "autentificat" : "neautentificat");
                             setUser(user);
                             setIsOnline(!!user);
                         });
@@ -628,7 +767,6 @@
                 };
             }, []);
 
-            // Sincronizare Anunțuri
             useEffect(() => {
                 if (!user || !window.FB) return;
 
@@ -652,7 +790,6 @@
                 return () => unsubscribe();
             }, [user]);
 
-            // Sincronizare Firestore (Examene)
             useEffect(() => {
                 if (!user || !window.FB) return;
 
@@ -665,11 +802,9 @@
                             const data = snapshot.data();
                             if (data && data.list) {
                                 setExams(data.list);
-                                console.log("📥 Date încărcate din Firebase");
                             }
                         } else {
                             setDoc(docRef, { list: defaultExams }, { merge: true })
-                                .then(() => console.log("📤 Date inițiale create în Firebase"))
                                 .catch(console.error);
                         }
                         setIsOnline(true);
@@ -710,20 +845,63 @@
                 }
             }, [activeDay, group, week, view, isLoading]);
 
-            const filteredSchedule = useMemo(() => {
+            const futureSchedule = useMemo(() => {
                 return scheduleData.filter(item => {
                     const gMatch = group === 'Toate' || item.group === 'Toți' || item.group === group;
+                    
                     let wMatch = true;
                     if (week !== 'Toate') {
                         if (item.week === 'Toate') wMatch = true;
-                        else if (week === 'Impară') wMatch = item.week.includes('Impară') || item.week.includes('8-14') || item.week.includes('11') || item.week.includes('13');
-                        else if (week === 'Pară') wMatch = item.week.includes('Pară') || item.week.includes('8-14') || item.week.includes('8') || item.week.includes('10') || item.week.includes('12');
+                        else if (week === 'Impară') wMatch = item.week.includes('Impară') || item.week.includes('8-14') || item.week.includes('11') || item.week.includes('13') || item.week.includes('8-10');
+                        else if (week === 'Pară') wMatch = item.week.includes('Pară') || item.week.includes('8-14') || item.week.includes('8') || item.week.includes('10') || item.week.includes('12') || item.week.includes('8-10');
                     }
                     return gMatch && wMatch;
                 });
             }, [group, week]);
 
+            const filteredSchedule = useMemo(() => {
+                return futureSchedule.filter(item => {
+                    let chronMatch = true;
+                    if (currentSemWeek < 8) {
+                        if (item.week.includes('8-14') || item.week.includes('8,') || item.week.includes('8-10')) {
+                            chronMatch = false;
+                        }
+                    }
+                    if (currentSemWeek < 11) {
+                        if (item.week.includes('11-2h*') && !item.week.includes('8')) {
+                            chronMatch = false;
+                        }
+                    }
+                    return chronMatch;
+                });
+            }, [futureSchedule, currentSemWeek]);
+
+            const futureScheduleForDay = futureSchedule.filter(item => item.day === activeDay);
             const currentSchedule = filteredSchedule.filter(item => item.day === activeDay);
+
+            const activeHoliday = useMemo(() => {
+                const dayMap = { 'Luni': 1, 'Marți': 2, 'Miercuri': 3, 'Joi': 4, 'Vineri': 5 };
+                const currentDayIndex = now.getDay() || 7; 
+                const activeDayIndex = dayMap[activeDay];
+                
+                if (!activeDayIndex) return null;
+
+                const diff = activeDayIndex - currentDayIndex;
+                const targetDate = new Date(now);
+                targetDate.setDate(now.getDate() + diff);
+                
+                const d = targetDate.getDate();
+                const m = targetDate.getMonth() + 1; 
+                const y = targetDate.getFullYear();
+                
+                if (y === 2026) {
+                    if (m === 4 && d === 10) return 'Vinerea Mare – zi liberă';
+                    if (m === 4 && d === 13) return 'A doua zi de Paște – zi liberă';
+                    if (m === 4 && d === 14) return 'A treia zi de Paște – zi liberă';
+                    if (m === 5 && d === 1) return 'Ziua Internațională a Muncii – zi liberă';
+                }
+                return null;
+            }, [now, activeDay]);
 
             const isClassActive = (startStr, endStr, dayStr) => {
                 const dayIndex = now.getDay();
@@ -758,10 +936,7 @@
             };
 
             const handleSaveExam = async (updatedExam) => {
-                if (!user || !window.FB) {
-                    alert("Nu ești conectat la Firebase!");
-                    return;
-                }
+                if (!user || !window.FB) return;
                 
                 setIsSaving(true);
                 try {
@@ -773,7 +948,6 @@
                     
                 } catch (err) {
                     console.error("❌ Eroare la salvare:", err);
-                    alert("Eroare la scriere: " + err.message);
                 } finally {
                     setIsSaving(false);
                 }
@@ -788,16 +962,16 @@
                     
                     const announcementData = {
                         ...newAnnouncement,
+                        author: nickname || 'Anonim',
                         date: new Date().toISOString() 
                     };
                     
                     await addDoc(announcementsRef, announcementData);
                     
                     setShowNewAnnouncementModal(false);
-                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '', attachedFiles: [] });
+                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '', attachedFiles: [], author: nickname || '' });
                 } catch (err) {
                     console.error("❌ Eroare la adăugare anunț:", err);
-                    alert("Eroare la salvare: " + err.message);
                 }
             };
 
@@ -814,11 +988,14 @@
                         type: updatedAnnouncement.type,
                         subject: updatedAnnouncement.subject || '',
                         dueDate: updatedAnnouncement.dueDate || '',
+                        author: updatedAnnouncement.author || '',
+                        attachedFiles: updatedAnnouncement.attachedFiles || [],
+                        fileData: updatedAnnouncement.fileData || null,
+                        fileName: updatedAnnouncement.fileName || null,
                         lastEdited: new Date().toISOString()
                     });
                 } catch (err) {
                     console.error("❌ Eroare la editare anunț:", err);
-                    alert("Eroare la editare: " + err.message);
                 }
             };
 
@@ -832,18 +1009,31 @@
                     await deleteDoc(announcementRef);
                 } catch (err) {
                     console.error("❌ Eroare la ștergere anunț:", err);
-                    alert("Eroare la ștergere: " + err.message);
                 }
+            };
+
+            const handleSaveNickname = () => {
+                const name = tempNickname.trim();
+                if (name) {
+                    localStorage.setItem('ipa_nickname', name);
+                    setNickname(name);
+                    setShowNicknamePrompt(false);
+                }
+            };
+
+            const handleSnoozeNickname = () => {
+                localStorage.setItem('ipa_nickname_snooze', new Date().toISOString());
+                setShowNicknamePrompt(false);
             };
 
             const getAccentColorHex = (type, accent) => {
                 switch (type) {
                     case 'Curs': return accentColors[accent].primary;
-                    case 'Laborator': return '#f43f5e'; // rose-500
-                    case 'Seminar': return '#10b981'; // emerald-500
-                    case 'Proiect': return '#f97316'; // orange-500
-                    case 'Sport': return '#a855f7'; // purple-500
-                    default: return '#94a3b8'; // slate-400
+                    case 'Laborator': return '#f43f5e'; 
+                    case 'Seminar': return '#10b981'; 
+                    case 'Proiect': return '#f97316'; 
+                    case 'Sport': return '#a855f7'; 
+                    default: return '#94a3b8'; 
                 }
             };
 
@@ -878,7 +1068,7 @@
                                         <div className="flex flex-col gap-1.5 mt-1 sm:mt-2">
                                             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                                                 <span className="text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded-full border border-white/30 bg-white/20 uppercase backdrop-blur-sm whitespace-nowrap">
-                                                    SĂPTĂMÂNA ACEASTA: {currentWeekParity.toUpperCase()}
+                                                    SĂPTĂMÂNA {currentSemWeek} ({currentWeekParity.toUpperCase()})
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2">
@@ -892,6 +1082,13 @@
                                 </div>
                                 
                                 <div className="flex flex-col items-stretch gap-1.5 sm:gap-2 shrink-0">
+                                    <button 
+                                        onClick={() => setShowNicknamePrompt(true)}
+                                        className="flex justify-center items-center p-1.5 sm:p-2 rounded-xl bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm transition-all shadow-sm"
+                                        title="Setări (Schimbă Nume)"
+                                    >
+                                        ⚙️
+                                    </button>
                                     <select
                                         value={accentColor}
                                         onChange={(e) => setAccentColor(e.target.value)}
@@ -981,7 +1178,17 @@
 
                         {!isLoading && view === 'orar' && (
                             <div className="space-y-4 animate-fade" key={`${activeDay}-${group}-${week}`}>
-                                {currentSchedule.length > 0 ? currentSchedule.map((item, i) => {
+                                {activeHoliday ? (
+                                    <div className="py-24 text-center animate-fade">
+                                        <div className="text-5xl mb-4 grayscale opacity-80">🌴</div>
+                                        <h3 className="text-slate-500 font-bold tracking-[0.2em] uppercase text-xs mb-2">Zi Liberă Legală</h3>
+                                        <div className={`inline-block px-4 py-2 rounded-full border ${darkMode ? 'bg-indigo-900/20 border-indigo-800/50 text-indigo-400' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}>
+                                            <p className="text-[10px] font-black uppercase tracking-widest">
+                                                {activeHoliday}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : currentSchedule.length > 0 ? currentSchedule.map((item, i) => {
                                     const active = isClassActive(item.start, item.end, item.day);
                                     return (
                                         <div 
@@ -1050,6 +1257,13 @@
                                     <div className="py-24 text-center animate-fade">
                                         <div className="text-4xl mb-3 grayscale opacity-30">🏡</div>
                                         <h3 className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[10px]">Zi Liberă</h3>
+                                        {futureScheduleForDay.length > 0 && currentSemWeek < 8 && (
+                                            <div className={`mt-3 inline-block px-3 py-1.5 rounded-full border ${darkMode ? 'bg-red-900/20 border-red-800/50 text-red-400' : 'bg-red-50 border-red-200 text-red-600'}`}>
+                                                <p className="text-[9px] font-black uppercase tracking-widest">
+                                                    ⏳ Ne revedem în Săpt. 8
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -1080,7 +1294,7 @@
                                                     {ex.credits} Credite
                                                 </span>
                                             </div>
-                                            <h3 className="font-extrabold text-sm uppercase italic leading-tight">{ex.subject}</h3>
+                                            <h3 className={`font-extrabold text-sm uppercase italic leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{ex.subject}</h3>
                                             {ex.room && (
                                                 <div className={`text-[12px] font-bold mt-1 uppercase italic ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
                                                     📍 Sala: {ex.room}
@@ -1118,7 +1332,12 @@
                                         Observații • Teme • Materiale
                                     </div>
                                     <button 
-                                        onClick={() => setShowNewAnnouncementModal(true)}
+                                        onClick={() => {
+                                            setNewAnnouncement({ 
+                                                title: '', content: '', type: 'tema', subject: '', dueDate: '', attachedFiles: [], author: nickname || '' 
+                                            });
+                                            setShowNewAnnouncementModal(true);
+                                        }}
                                         className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20 card-hover"
                                     >
                                         ➕ Anunț nou
@@ -1151,7 +1370,7 @@
                                     <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className={`${darkMode ? 'bg-slate-900 hover:bg-slate-800 border-slate-800' : 'bg-white hover:bg-slate-50 border-slate-100'} p-5 rounded-2xl border shadow-sm flex items-center gap-5 transition-all group card-hover`}>
                                         <div className="text-3xl grayscale group-hover:grayscale-0 transition-all">{link.icon}</div>
                                         <div className="flex-1">
-                                            <h3 className="font-black text-sm uppercase italic">{link.name}</h3>
+                                            <h3 className={`font-black text-sm uppercase italic ${darkMode ? 'text-white' : 'text-slate-900'}`}>{link.name}</h3>
                                             <p className="text-[10px] text-blue-500 font-medium">{link.desc}</p>
                                         </div>
                                         <div className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1163,11 +1382,34 @@
                         )}
                     </main>
 
+                    {/* MODAL NICKNAME - PROMPT INIȚIAL */}
+                    {showNicknamePrompt && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 modal-overlay animate-fade">
+                            <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
+                                <h3 className={`text-sm font-black uppercase italic tracking-widest mb-2 text-center ${darkMode ? 'text-white' : 'text-slate-900'}`}>Numele tău?</h3>
+                                <p className={`text-[10px] text-center mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Alege un nickname pentru a vedea colegii cine postează anunțurile (opțional).
+                                </p>
+                                <input 
+                                    type="text" 
+                                    value={tempNickname} 
+                                    onChange={(e) => setTempNickname(e.target.value)}
+                                    placeholder="Ex: Alex, Anonim..."
+                                    className={`w-full border-2 p-3 rounded-2xl text-center text-sm font-bold focus:outline-none transition-all ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-500 focus:border-blue-500' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-blue-500'}`}
+                                />
+                                <div className="grid grid-cols-2 gap-3 mt-6">
+                                    <button onClick={handleSnoozeNickname} className={`py-3 rounded-2xl text-xs font-bold uppercase transition-all hover:scale-105 ${darkMode ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Mai târziu</button>
+                                    <button onClick={handleSaveNickname} className="bg-blue-600 text-white py-3 rounded-2xl text-xs font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all">Salvează</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* MODAL PIN */}
                     {isPinModalOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-xs p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
-                                <h3 className="text-sm font-black uppercase italic tracking-widest mb-4 text-center">Cod Acces</h3>
+                                <h3 className={`text-sm font-black uppercase italic tracking-widest mb-4 text-center ${darkMode ? 'text-white' : 'text-slate-900'}`}>Cod Acces</h3>
                                 <input 
                                     id="pinInput"
                                     type="password" 
@@ -1190,11 +1432,11 @@
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
                                 <h3 className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Editare Detalii</h3>
-                                <h2 className="text-sm font-black uppercase italic tracking-tight mb-6 leading-tight">{editModalExam.subject}</h2>
+                                <h2 className={`text-sm font-black uppercase italic tracking-tight mb-6 leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{editModalExam.subject}</h2>
                                 
                                 <div className="space-y-4 text-left">
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Data (Ex: 15 Iunie)</label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Data (Ex: 15 Iunie)</label>
                                         <input 
                                             type="text" 
                                             value={editModalExam.date} 
@@ -1204,7 +1446,7 @@
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Ora (Format 00:00)</label>
+                                            <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Ora (Format 00:00)</label>
                                             <input 
                                                 type="text" 
                                                 value={editModalExam.time} 
@@ -1215,7 +1457,7 @@
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Sala</label>
+                                            <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Sala</label>
                                             <input 
                                                 type="text" 
                                                 value={editModalExam.room} 
@@ -1255,7 +1497,7 @@
                                 
                                 <div className="space-y-4 mt-4">
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Tip anunț</label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Tip anunț</label>
                                         <select
                                             value={newAnnouncement.type}
                                             onChange={(e) => setNewAnnouncement({...newAnnouncement, type: e.target.value})}
@@ -1268,7 +1510,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Titlu (obligatoriu) </label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Titlu (obligatoriu)</label>
                                         <input 
                                             type="text" 
                                             value={newAnnouncement.title} 
@@ -1277,7 +1519,7 @@
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Materia (opțional) </label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Materia (opțional)</label>
                                         <select
                                             value={newAnnouncement.subject || ''}
                                             onChange={(e) => setNewAnnouncement({...newAnnouncement, subject: e.target.value})}
@@ -1290,7 +1532,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Conținut (obligatoriu) </label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Conținut (obligatoriu)</label>
                                         <textarea 
                                             rows="3"
                                             value={newAnnouncement.content} 
@@ -1299,7 +1541,7 @@
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Data limită (opțional)</label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Data limită (opțional)</label>
                                         <input 
                                             type="text" 
                                             value={newAnnouncement.dueDate} 
@@ -1309,9 +1551,8 @@
                                         />
                                     </div>
 
-                                    {/* SECTIUNE INCARCARE FISIERE MULTIPLE (inclusiv poze cu compresie) */}
                                     <div>
-                                        <label className="text-[9px] font-black uppercase tracking-widest opacity-40 ml-1">Încarcă Materiale (Poți selecta mai multe - Max 25MB)</label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-60 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Încarcă Materiale (Poți selecta mai multe - Max 25MB)</label>
                                         <input 
                                             type="file" 
                                             multiple
@@ -1325,7 +1566,7 @@
                                                 for (let file of files) {
                                                     if (file.type === 'application/pdf') {
                                                         if (file.size > 25 * 1024 * 1024) {
-                                                            alert(`Atenție: PDF-ul ${file.name} are peste 25MB. PDF-urile nu pot fi comprimate automat ca pozele, așa că se va încerca salvarea la dimensiunea originală.`);
+                                                            alert(`Atenție: PDF-ul ${file.name} are peste 25MB. Acesta nu va fi comprimat automat.`);
                                                         }
                                                         const reader = new FileReader();
                                                         const base64 = await new Promise(resolve => {
@@ -1334,7 +1575,6 @@
                                                         });
                                                         processedFiles.push({ name: file.name, data: base64 });
                                                     } else if (file.type.startsWith('image/')) {
-                                                        // Pentru imagini, aplicăm compresia prin Canvas
                                                         const reader = new FileReader();
                                                         const base64 = await new Promise(resolve => {
                                                             reader.onload = (event) => {
@@ -1378,7 +1618,6 @@
                                                     attachedFiles: [...(prev.attachedFiles || []), ...processedFiles]
                                                 }));
                                                 
-                                                // Reset input ca sa poti adauga din nou alte fisiere
                                                 e.target.value = "";
                                             }}
                                             className={`w-full border-2 p-2 rounded-xl text-[10px] focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
@@ -1386,7 +1625,7 @@
                                         {newAnnouncement.attachedFiles && newAnnouncement.attachedFiles.length > 0 && (
                                             <div className="mt-2 space-y-1">
                                                 {newAnnouncement.attachedFiles.map((f, idx) => (
-                                                    <p key={idx} className="text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center bg-emerald-50 dark:bg-emerald-900/30 p-1.5 rounded">
+                                                    <p key={idx} className={`text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center p-1.5 rounded ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
                                                         <span>✅ {f.name.substring(0, 25)}{f.name.length > 25 ? '...' : ''}</span>
                                                         <span 
                                                             className="text-red-500 cursor-pointer px-2 text-xs hover:scale-125 transition-all" 
