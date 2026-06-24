@@ -187,25 +187,29 @@
     <div id="root"></div>
 
     <!-- Script pentru inițializare Firebase (Modular SDK) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script type="text/babel" data-type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ipa-727-v1';
+    const firebaseConfig = JSON.parse(__firebase_config);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'ipa-727-v1';
 
-        window.FB = { 
-            auth, db, appId, 
-            signInAnonymously, onAuthStateChanged, 
-            doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc 
-        };
-        
-        console.log("Firebase inițializat cu succes!");
-    </script>
+    window.FB = { 
+        auth, db, appId, 
+        signInAnonymously, onAuthStateChanged, 
+        doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc 
+    };
+    
+    console.log("Firebase inițializat cu succes!");
+
+    const { useState, useMemo, useEffect, useRef } = React;
+
+    const defaultExams = [
+    ...
 
     <!-- Script pentru aplicația React (transpilat de Babel) -->
     <script type="text/babel">
