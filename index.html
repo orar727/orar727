@@ -38,7 +38,7 @@
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -186,33 +186,64 @@
 <body>
     <div id="root"></div>
 
-    <!-- Script pentru inițializare Firebase (Modular SDK) -->
-    <script type="text/babel" data-type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    <!-- Firebase UMD (compatibil cu Babel standalone, fara import) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+    const firebaseConfig = JSON.parse(window.__firebase_config);
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'ipa-727-v1';
 
-    window.FB = { 
-        auth, db, appId, 
-        signInAnonymously, onAuthStateChanged, 
-        doc, setDoc, onSnapshot, collection, addDoc, query, orderBy, deleteDoc, updateDoc 
+    window.FB = {
+        auth, db, appId,
+        // signInAnonymously(auth) - ignora primul arg, folosim auth din closure
+        signInAnonymously: (_auth) => auth.signInAnonymously(),
+        // onAuthStateChanged(auth, cb) - al doilea arg e callback-ul
+        onAuthStateChanged: (_auth, cb) => {
+            // daca e apelat cu un singur arg (cb), functioneaza si asa
+            const callback = cb || _auth;
+            return auth.onAuthStateChanged(callback);
+        },
+        // doc(db, 'col', 'doc') sau doc(db, 'col/doc')
+        doc: (_db, ...pathParts) => {
+            const fullPath = pathParts.join('/');
+            return db.doc(fullPath);
+        },
+        // setDoc(ref, data, {merge: true})
+        setDoc: (ref, data, opts) => opts && opts.merge ? ref.set(data, { merge: true }) : ref.set(data),
+        // onSnapshot(ref, cb) sau onSnapshot(ref, opts, cb)
+        onSnapshot: (ref, cbOrOpts, cb) => {
+            if (typeof cbOrOpts === 'function') return ref.onSnapshot(cbOrOpts, cb);
+            return ref.onSnapshot(cbOrOpts, cb);
+        },
+        // collection(db, 'artifacts', appId, 'public', ...)
+        collection: (_db, ...pathParts) => {
+            const fullPath = pathParts.join('/');
+            return db.collection(fullPath);
+        },
+        addDoc: (ref, data) => ref.add(data),
+        // query(ref, orderBy(...)) - constraints sunt functii
+        query: (ref, ...constraints) => {
+            let q = ref;
+            for (const c of constraints) {
+                if (typeof c === 'function') q = c(q);
+            }
+            return q;
+        },
+        // orderBy('field', 'desc') returneaza o functie care aplica .orderBy pe ref
+        orderBy: (field, dir) => (ref) => ref.orderBy(field, dir || 'asc'),
+        deleteDoc: (ref) => ref.delete(),
+        updateDoc: (ref, data) => ref.update(data),
     };
-    
-    console.log("Firebase inițializat cu succes!");
 
-    const { useState, useMemo, useEffect, useRef } = React;
-
-    const defaultExams = [
-    ...
+    console.log("Firebase initializat cu succes!");
+    </script>
 
     <!-- Script pentru aplicația React (transpilat de Babel) -->
-    <script type="text/babel">
+    <script type="text/babel" data-presets="react">
         const { useState, useMemo, useEffect, useRef } = React;
 
         const defaultExams = [
@@ -1679,10 +1710,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
