@@ -731,7 +731,7 @@
             }, []);
 
             const currentSemWeek = useMemo(() => {
-                const semStart = new Date(2026, 1, 23); // 23 Februarie
+                const semStart = new Date(2026, 9, 28); // 23 Septembrie
                 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 if (today < semStart) return 1; 
                 
@@ -746,12 +746,12 @@
             
             const currentWeekParity = useMemo(() => {
                 const weekNum = getWeekNumber(now);
-                return weekNum % 2 === 0 ? 'Pară' : 'Impară';
+                return weekNum % 2 === 0 ? 'Impară' : 'Pară';
             }, [now]);
 
             const semesterProgress = useMemo(() => {
-                const start = new Date(2026, 1, 23); 
-                const end = new Date(2026, 4, 29);   
+                const start = new Date(2026, 9, 28); 
+                const end = new Date(2027, 1, 22);    
                 const total = end - start;
                 const elapsed = now - start;
                 const percentage = Math.round((elapsed / total) * 100);
