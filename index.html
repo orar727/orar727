@@ -258,33 +258,7 @@
             { id: 'sport', subject: 'Educaţie fizică şi sport', type: 'Colocviu', credits: 1, date: '', time: '', room: '' }
         ];
 
-        const scheduleData = [
-            { day: 'Luni', start: '08:00', end: '11:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. drd. ing. Ionescu D.', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'A', week: 'S. Impară' },
-            { day: 'Luni', start: '08:00', end: '11:50', subject: 'Inocuitatea produselor alimentare', type: 'Laborator', prof: 'Sl. dr. ing. Crăciun L.', email: 'luminita.craciun@upb.ro', room: 'I308 Polizu', group: 'B', week: 'Săpt. 8-14' },
-            { day: 'Marți', start: '10:00', end: '11:50', subject: 'Operații unitare în industria alimentară 2', type: 'Curs', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'L121 Polizu', group: 'Toți', week: 'Toate' },
-            { day: 'Marți', start: '12:00', end: '13:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Curs', prof: 'Prof. dr. ing. Stan Raluca', email: 'raluca.stan@upb.ro', room: 'L121 Polizu', group: 'Toți', week: 'Toate' },
-            { day: 'Marți', start: '14:00', end: '15:50', subject: 'Analiză senzorială', type: 'Curs', prof: 'Conf. dr. ing. Ungureanu Camelia', email: 'camelia.ungureanu@upb.ro', room: 'L121 Polizu', group: 'Toți', week: 'Toate' },
-            { day: 'Miercuri', start: '08:00', end: '11:50', subject: 'Inocuitatea produselor alimentare', type: 'Laborator', prof: 'Conf. dr. ing. Răzvan A.G.', email: 'anca.razvan@upb.ro', room: 'I308 Polizu', group: 'A', week: 'Săpt. 8-14' },
-            { day: 'Miercuri', start: '08:00', end: '11:50', subject: 'Microbiologie specială', type: 'Laborator', prof: 'As. Dr. ing Ionescu Daiana', email: 'alina.ionescu1007@upb.ro', room: 'D017, D015 Poli', group: 'B', week: 'S. Pară' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'A', week: 'Săpt. 8, 10, 11-2h*', note: '🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină aditivii și începe biochimia în aceeași zi).' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Mihalache M.', email: 'mihaela.mihalache@upb.ro', room: 'L016 Polizu', group: 'A', week: 'Săpt. 11-2h*, 12-14' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Biochimie', type: 'Laborator', prof: 'Ş.l. dr. ing. Tociu M.', email: 'mihaela.tociu@upb.ro', room: 'L016 Polizu', group: 'B', week: 'Săpt. 8-10, 11-2h*', note:'🚨 Săpt. 11: 2 ore aditivi + 2 ore biochimie (se termină biochimia și încep aditivii)' },
-            { day: 'Miercuri', start: '12:00', end: '15:50', subject: 'Aditivi şi ingrediente în industria alimentară', type: 'Laborator', prof: 'Ş.l. dr. ing. Bratu A.', email: 'aurelia.bratu@upb.ro', room: 'Corp B Polizu', group: 'B', week: 'Săpt. 11-2h*, 12-14' },
-            { day: 'Miercuri', start: '16:00', end: '17:50', subject: 'Principiile nutriţiei umane', type: 'Seminar', prof: 'Conf. dr. ing. Chira Nicoleta', email: 'nicoleta.chira@upb.ro', room: 'L102 Polizu', group: 'Toți', week: 'Săpt. 8-14' },
-            { day: 'Joi', start: '08:00', end: '09:50', subject: 'Principiile nutriţiei umane', type: 'Curs', prof: 'Conf. dr. ing. Chira Nicoleta', email: 'nicoleta.chira@upb.ro', room: 'D208 Polizu', group: 'Toți', week: 'Toate' },
-            { day: 'Joi', start: '10:00', end: '11:50', subject: 'Microbiologie specială', type: 'Curs', prof: 'Ş.l. dr. ing. Cîrîc Alexandru', email: 'alexandru.ciric@upb.ro', room: 'D208 Polizu', group: 'Toți', week: 'Toate' },
-            { day: 'Joi', start: '12:00', end: '13:50', subject: 'Biochimie', type: 'Curs', prof: 'Conf. dr. ing. Lăcătuşu Ioana', email: 'ioana.lacatusu@upb.ro', room: 'D208 Polizu', group: 'Toți', week: 'Toate' },
-            { day: 'Joi', start: '14:00', end: '15:50', subject: 'Inocuitatea produselor alimentare', type: 'Curs', prof: 'Conf. dr. ing. Răzvan Anca Gabriela', email: 'anca.razvan@upb.ro', room: 'D208 Polizu', group: 'Toți', week: 'Toate' },
-            { day: 'Joi', start: '16:00', end: '17:50', subject: 'Didactica specialităţii', type: 'Curs', prof: 'prof. Gheorghe Maria', email: 'mburcea@upb.ro', room: 'CD016 Poli', group: 'Toți', week: 'Toate' },
-            { day: 'Joi', start: '18:00', end: '19:50', subject: 'Didactica specialităţii', type: 'Seminar', prof: 'prof. Gheorghe Maria', email: 'mburcea@upb.ro', room: 'CD016 Poli', group: 'Toți', week: 'Toate' },
-            { day: 'Vineri', start: '08:00', end: '09:50', subject: 'Limba engleză IV', type: 'Seminar', prof: 'Ciobotaru A.', email: 'alina.ciobotaru1406@upb.ro', room: 'AN212 Poli', group: 'Toți', week: 'S. Pară' },
-            { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Analiză senzorială', type: 'Laborator', prof: 'Conf. dr. ing. Ungureanu C.', email: 'camelia.ungureanu@upb.ro', room: 'L026 Polizu', group: 'A', week: 'S. Impară' },
-            { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Operaţii unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106 Polizu', group: 'B', week: 'S. Impară' },
-            { day: 'Vineri', start: '10:00', end: '11:50', subject: 'Sport', type: 'Sport', prof: 'Cristea D.N.', email: 'dan_niculae.cristea@upb.ro', room: 'Sala Sport', group: 'Toți', week: 'S. Pară' },
-            { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Operații unitare în industria alimentară 2', type: 'Laborator', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201 Polizu', group: 'A', week: 'S. Impară' },
-            { day: 'Vineri', start: '12:00', end: '13:50', subject: 'Analiză senzorială', type: 'Laborator', prof: 'Conf. dr. ing. Ungureanu C.', email: 'camelia.ungureanu@upb.ro', room: 'L026 Polizu', group: 'B', week: 'S. Impară' },
-            { day: 'Vineri', start: '14:00', end: '15:50', subject: 'Operaţii unitare în industria alimentară 2', type: 'Proiect', prof: 'Conf. dr. ing. Deleanu Iuliana', email: 'iuliana.deleanu@upb.ro', room: 'D106/L201 Polizu', group: 'Toți', week: 'S. Impară' },
-        ];
+        const scheduleData = [];
 
         const days = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri'];
 
@@ -1220,11 +1194,11 @@
                             <div className="space-y-4 animate-fade" key={`${activeDay}-${group}-${week}`}>
                                 {activeHoliday ? (
                                     <div className="py-24 text-center animate-fade">
-                                        <div className="text-5xl mb-4 grayscale opacity-80">🌴</div>
-                                        <h3 className="text-slate-500 font-bold tracking-[0.2em] uppercase text-xs mb-2">Zi Liberă Legală</h3>
-                                        <div className={`inline-block px-4 py-2 rounded-full border ${darkMode ? 'bg-indigo-900/20 border-indigo-800/50 text-indigo-400' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}>
-                                            <p className="text-[10px] font-black uppercase tracking-widest">
-                                                {activeHoliday}
+                                        <div className="text-5xl mb-4">🎓</div>
+                                        <h3 className={`font-black text-sm uppercase italic tracking-widest mb-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Vacanță de vară!</h3>
+                                        <div className={`inline-block px-5 py-3 rounded-2xl border shadow-sm ${darkMode ? 'bg-blue-900/20 border-blue-800/50 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
+                                            <p className="text-[11px] font-black uppercase tracking-widest">
+                                                📅 Ne vedem pe 28 septembrie!
                                             </p>
                                         </div>
                                     </div>
@@ -1295,15 +1269,13 @@
                                     );
                                 }) : (
                                     <div className="py-24 text-center animate-fade">
-                                        <div className="text-4xl mb-3 grayscale opacity-30">🏡</div>
-                                        <h3 className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[10px]">Zi Liberă</h3>
-                                        {futureScheduleForDay.length > 0 && currentSemWeek < 8 && (
-                                            <div className={`mt-3 inline-block px-3 py-1.5 rounded-full border ${darkMode ? 'bg-red-900/20 border-red-800/50 text-red-400' : 'bg-red-50 border-red-200 text-red-600'}`}>
-                                                <p className="text-[9px] font-black uppercase tracking-widest">
-                                                    ⏳ Ne revedem în Săpt. 8
-                                                </p>
-                                            </div>
-                                        )}
+                                        <div className="text-5xl mb-4">🎓</div>
+                                        <h3 className={`font-black text-sm uppercase italic tracking-widest mb-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Vacanță de vară!</h3>
+                                        <div className={`inline-block px-5 py-3 rounded-2xl border shadow-sm ${darkMode ? 'bg-blue-900/20 border-blue-800/50 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
+                                            <p className="text-[11px] font-black uppercase tracking-widest">
+                                                📅 Ne vedem pe 28 septembrie!
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
