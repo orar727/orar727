@@ -1,41 +1,26 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YYKRP7FGL6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-YYKRP7FGL6');
-</script>
-   
-<!-- Configurare Firebase cu datele tale reale -->
-<script>
-   window.__firebase_config = JSON.stringify({
-       apiKey: "AIzaSyAFDBBmMggXykckmf6aoIT1ZUBNN8nETKg",
-       authDomain: "orar727-a136f.firebaseapp.com",
-       projectId: "orar727-a136f",
-       storageBucket: "orar727-a136f.firebasestorage.app",
-       messagingSenderId: "466079941013",
-       appId: "1:466079941013:web:3a866aab777d3c3382369c",
-       measurementId: "G-KTDERL6NXK"
-   });
-   
-   window.__app_id = 'ipa-727-v1';
-   window.__initial_auth_token = null;
-</script>
-
-   <link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#ffffff">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YYKRP7FGL6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YYKRP7FGL6');
+    </script>
+    
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#ffffff">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Orar IPA 737 • 2026</title>
+    <title>Orar IPA 737 • 2026-2027</title>
     
+    <!-- React, ReactDOM, Babel standalone and Tailwind CSS -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
@@ -129,7 +114,6 @@
             display: inline-block;
         }
 
-        /* Loading Skeleton Animation */
         .skeleton {
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
             background-size: 200% 100%;
@@ -140,7 +124,6 @@
             100% { background-position: -200% 0; }
         }
 
-        /* Hover Effects */
         .card-hover {
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -149,7 +132,6 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        /* Subtle Pattern Background */
         .pattern-light {
             background-color: #f8fafc;
             background-image: radial-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px);
@@ -161,7 +143,6 @@
             background-size: 50px 50px;
         }
 
-        /* Gradient Headers */
         .gradient-header-blue { background: linear-gradient(135deg, #2563eb, #7c3aed); }
         .gradient-header-green { background: linear-gradient(135deg, #059669, #10b981); }
         .gradient-header-purple { background: linear-gradient(135deg, #7c3aed, #c026d3); }
@@ -186,93 +167,117 @@
 <body>
     <div id="root"></div>
 
-    <!-- Firebase UMD (compatibil cu Babel standalone, fara import) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script>
-    const firebaseConfig = JSON.parse(window.__firebase_config);
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'ipa-727-v1';
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    window.FB = {
-        auth, db, appId,
-        // signInAnonymously(auth) - ignora primul arg, folosim auth din closure
-        signInAnonymously: (_auth) => auth.signInAnonymously(),
-        // onAuthStateChanged(auth, cb) - al doilea arg e callback-ul
-        onAuthStateChanged: (_auth, cb) => {
-            // daca e apelat cu un singur arg (cb), functioneaza si asa
-            const callback = cb || _auth;
-            return auth.onAuthStateChanged(callback);
-        },
-        // doc(db, 'col', 'doc') sau doc(db, 'col/doc')
-        doc: (_db, ...pathParts) => {
-            const fullPath = pathParts.join('/');
-            return db.doc(fullPath);
-        },
-        // setDoc(ref, data, {merge: true})
-        setDoc: (ref, data, opts) => opts && opts.merge ? ref.set(data, { merge: true }) : ref.set(data),
-        // onSnapshot(ref, cb) sau onSnapshot(ref, opts, cb)
-        onSnapshot: (ref, cbOrOpts, cb) => {
-            if (typeof cbOrOpts === 'function') return ref.onSnapshot(cbOrOpts, cb);
-            return ref.onSnapshot(cbOrOpts, cb);
-        },
-        // collection(db, 'artifacts', appId, 'public', ...)
-        collection: (_db, ...pathParts) => {
-            const fullPath = pathParts.join('/');
-            return db.collection(fullPath);
-        },
-        addDoc: (ref, data) => ref.add(data),
-        // query(ref, orderBy(...)) - constraints sunt functii
-        query: (ref, ...constraints) => {
-            let q = ref;
-            for (const c of constraints) {
-                if (typeof c === 'function') q = c(q);
-            }
-            return q;
-        },
-        // orderBy('field', 'desc') returneaza o functie care aplica .orderBy pe ref
-        orderBy: (field, dir) => (ref) => ref.orderBy(field, dir || 'asc'),
-        deleteDoc: (ref) => ref.delete(),
-        updateDoc: (ref, data) => ref.update(data),
-    };
+        const rawFirebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? __firebase_config 
+            : JSON.stringify({
+                apiKey: "AIzaSyAFDBBmMggXykckmf6aoIT1ZUBNN8nETKg",
+                authDomain: "orar727-a136f.firebaseapp.com",
+                projectId: "orar727-a136f",
+                storageBucket: "orar727-a136f.firebasestorage.app",
+                messagingSenderId: "466079941013",
+                appId: "1:466079941013:web:3a866aab777d3c3382369c",
+                measurementId: "G-KTDERL6NXK"
+            });
 
-    console.log("Firebase initializat cu succes!");
+        const firebaseConfig = JSON.parse(rawFirebaseConfig);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ipa-737-v1';
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            window.FB = {
+                app,
+                auth,
+                db,
+                appId,
+                signInAnonymously: () => signInAnonymously(auth),
+                onAuthStateChanged: (cb) => onAuthStateChanged(auth, cb),
+                doc: (...parts) => doc(db, ...parts),
+                collection: (...parts) => collection(db, ...parts),
+                setDoc: (ref, data, opts) => setDoc(ref, data, opts || {}),
+                addDoc: (ref, data) => addDoc(ref, data),
+                updateDoc: (ref, data) => updateDoc(ref, data),
+                deleteDoc: (ref) => deleteDoc(ref),
+                onSnapshot: (target, next, error) => onSnapshot(target, next, error),
+                query: (target) => query(target)
+            };
+            console.log("Firebase 11 inițializat cu succes!");
+        } catch (e) {
+            console.warn("Firebase a întâmpinat o problemă, se folosește stocarea locală:", e);
+        }
     </script>
 
-    <!-- Script pentru aplicația React (transpilat de Babel) -->
     <script type="text/babel" data-presets="react">
         const { useState, useMemo, useEffect, useRef } = React;
 
+        // Materii oficiale conform planului de învățământ (Art. 4)
         const defaultExams = [
-            { id: 'biochimie', subject: 'Biochimie', type: 'Examen', credits: 4, date: '', time: '', room: '' },
-            { id: 'operatii', subject: 'Operaţii unitare în industria alimentară II', type: 'Examen', credits: 4, date: '', time: '', room: '' },
-            { id: 'micro', subject: 'Microbiologie specială', type: 'Examen', credits: 4, date: '', time: '', room: '' },
-            { id: 'inocuitate', subject: 'Inocuitatea produselor alimentare', type: 'Examen', credits: 4, date: '', time: '', room: '' },
-            { id: 'aditivi', subject: 'Aditivi și ingrediente în industria alimentară', type: 'Examen', credits: 4, date: '', time: '', room: '' },
-            { id: 'nutritie', subject: 'Principiile nutriției umane', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
-            { id: 'analiza', subject: 'Analiză senzorială', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
-            { id: 'engleza', subject: 'Limba engleză', type: 'Colocviu', credits: 1, date: '', time: '', room: '' },
-            { id: 'sport', subject: 'Educaţie fizică şi sport', type: 'Colocviu', credits: 1, date: '', time: '', room: '' }
+            { id: 'bs', subject: 'Biotehnologii speciale', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
+            { id: 'uia1', subject: 'Utilaje în industria alimentară I', type: 'Examen', credits: 4, date: '', time: '', room: '' },
+            { id: 'uia1_pr', subject: 'Utilaje în industria alimentară I - proiect', type: 'Colocviu', credits: 2, date: '', time: '', room: '' },
+            { id: 'ra', subject: 'Reologia alimentelor', type: 'Examen', credits: 4, date: '', time: '', room: '' },
+            { id: 'tmb', subject: 'Tehnologia malțului și a berii', type: 'Colocviu', credits: 4, date: '', time: '', room: '' },
+            { id: 'tm', subject: 'Tehnologia morăritului', type: 'Examen', credits: 4, date: '', time: '', room: '' },
+            { id: 'tum', subject: 'Tehnologia uleiului și a margarinei', type: 'Examen', credits: 4, date: '', time: '', room: '' },
+            { id: 'tic', subject: 'Tehnologii în industria cărnii', type: 'Examen', credits: 4, date: '', time: '', room: '' }
         ];
 
-        const scheduleData = [];
+        // Lista materiilor actualizată pentru filtrele din secțiunea de anunțuri
+        const subjectsList = [
+            'Biotehnologii speciale',
+            'Utilaje în industria alimentară I',
+            'Utilaje în industria alimentară I - proiect',
+            'Reologia alimentelor',
+            'Tehnologia malțului și a berii',
+            'Tehnologia morăritului',
+            'Tehnologia uleiului și a margarinei',
+            'Tehnologii în industria cărnii'
+        ];
+
+        // Orarul oficial extras din documentul PDF pentru Grupa 737 A și Grupa 737 B
+        const scheduleData = [
+            // ── LUNI ──
+            { day: 'Luni', start: '08:00', end: '09:50', subject: 'Tehnologii în industria cărnii (TIC)', type: 'Curs', prof: 'Ș.l. dr. ing. Cîrîc Alexandru', email: 'alexandru.ciric@upb.ro', room: 'D008b Poli', group: 'Toți', week: 'Toate' },
+            { day: 'Luni', start: '10:00', end: '11:50', subject: 'Tehnologia malțului și a berii (TMB)', type: 'Curs', prof: 'Prof. dr. ing. Begea Mihaela', email: '', room: 'D008b Poli', group: 'Toți', week: 'Toate' },
+            { day: 'Luni', start: '12:00', end: '13:50', subject: 'Tehnologia morăritului (TM)', type: 'Curs', prof: 'Ș.l. dr. ing. Ștefan Mădălina', email: '', room: 'D115 Poli', group: 'Toți', week: 'Toate' },
+
+            // ── MARȚI ──
+            { day: 'Marți', start: '08:00', end: '09:50', subject: 'Biotehnologii speciale (BS)', type: 'Laborator', prof: 'Brezoiu A.', email: '', room: 'E108 Polizu', group: 'A', week: 'Săpt. 1, 3, 5, 7 (2h)' },
+            { day: 'Marți', start: '08:00', end: '09:50', subject: 'Utilaje în industria alimentară 1 (UIA1)', type: 'Laborator', prof: 'Cîșmaru M.', email: '', room: 'D004 poli (D015)*', group: 'B', week: 'Toate', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Marți', start: '10:00', end: '11:50', subject: 'Tehnologia morăritului (TM)', type: 'Laborator', prof: 'Ștefan M.', email: '', room: 'D004 poli (D015)*', group: 'B', week: 'Toate', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Marți', start: '12:00', end: '13:50', subject: 'Tehnologii în industria cărnii (TIC)', type: 'Laborator', prof: 'Cîșmaru M.', email: '', room: 'D002 Poli', group: 'A', week: 'Toate' },
+            { day: 'Marți', start: '14:00', end: '15:50', subject: 'Tehnologia morăritului (TM)', type: 'Laborator', prof: 'Ștefan M.', email: '', room: 'D002 Poli', group: 'A', week: 'Toate' },
+
+            // ── MIERCURI ──
+            { day: 'Miercuri', start: '08:00', end: '09:50', subject: 'Utilaje în industria alimentară 1 (UIA 1)', type: 'Curs', prof: 'Ș.l. dr. ing. Duțu Mihaela / Ș.l. dr. ing. Ionescu Mariana', email: '', room: 'D015 Poli', group: 'Toți', week: 'Toate' },
+            { day: 'Miercuri', start: '10:00', end: '11:50', subject: 'Biotehnologii speciale (BS)', type: 'Curs', prof: 'Conf. dr. ing. Deleanu I.M.', email: '', room: 'D015 Poli', group: 'Toți', week: 'Toate' },
+            { day: 'Miercuri', start: '12:00', end: '13:50', subject: 'Reologia alimentelor (RA)', type: 'Curs', prof: 'Conf. dr. ing. Ipate George', email: '', room: 'D115 Poli', group: 'Toți', week: 'Toate' },
+            { day: 'Miercuri', start: '14:00', end: '15:50', subject: 'Tehnologia uleiului și margarinei (TUM)', type: 'Curs', prof: 'Ș.l. dr. ing. Ionescu Mariana', email: '', room: 'D115 Poli', group: 'Toți', week: 'Toate' },
+
+            // ── JOI ──
+            { day: 'Joi', start: '08:00', end: '09:50', subject: 'Utilaje în industria alimentară 1 (UIA1)', type: 'Laborator', prof: 'Cîșmaru M.', email: '', room: 'D004 poli (D015)*', group: 'A', week: 'Toate', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Joi', start: '10:00', end: '11:50', subject: 'Tehnologia uleiului și margarinei (TUM)', type: 'Laborator', prof: 'Ionescu A.D.', email: '', room: 'D113 poli (D015)*', group: 'A', week: 'S. Impară', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Joi', start: '10:00', end: '11:50', subject: 'Reologia alimentelor (RA)', type: 'Laborator', prof: 'Ionescu A.D.', email: '', room: 'D113 poli (D015)*', group: 'A', week: 'S. Pară', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Joi', start: '12:00', end: '13:50', subject: 'Tehnologia uleiului și margarinei (TUM)', type: 'Laborator', prof: 'Ionescu A.D.', email: '', room: 'D113 poli (D015)*', group: 'A', week: 'S. Impară', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Joi', start: '12:00', end: '13:50', subject: 'Tehnologia malțului și a berii (TMB)', type: 'Laborator', prof: 'Ionescu A.D.', email: '', room: 'D113 poli (D015)*', group: 'A', week: 'S. Pară', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Joi', start: '14:00', end: '15:50', subject: 'Utilaje în industria alimentară 1 (UIA1)', type: 'Proiect', prof: 'Iordache S.', email: '', room: 'D113 poli', group: 'A', week: 'S. Pară' },
+            { day: 'Joi', start: '14:00', end: '15:50', subject: 'Reologia alimentelor (RA)', type: 'Laborator', prof: 'Ionescu A.D.', email: '', room: 'D016 poli (D015)*', group: 'B', week: 'S. Impară', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Joi', start: '14:00', end: '15:50', subject: 'Utilaje în industria alimentară 1 (UIA1)', type: 'Proiect', prof: 'Iordache S.', email: '', room: 'D113 poli', group: 'B', week: 'S. Pară' },
+
+            // ── VINERI ──
+            { day: 'Vineri', start: '08:00', end: '11:50', subject: 'Tehnologia malțului și a berii (TMB)', type: 'Laborator', prof: 'Ionescu A.D.', email: '', room: 'D016 poli', group: 'B', week: 'Săpt. 1, 3, 5, 7 (2h)' },
+            { day: 'Vineri', start: '08:00', end: '11:50', subject: 'Tehnologii în industria cărnii (TIC)', type: 'Laborator', prof: 'Cîșmaru M.E.', email: '', room: 'D116b (D015)* Poli', group: 'B', week: 'S. Pară', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' },
+            { day: 'Vineri', start: '12:00', end: '15:50', subject: 'Tehnologia uleiului și margarinei (TUM)', type: 'Laborator', prof: 'Ionescu A.D.', email: '', room: 'D008 (D015)* Poli', group: 'B', week: 'S. Pară', note: 'Sala D015* va fi disponibilă din săptămâna a 4-a a semestrului.' }
+        ];
 
         const days = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri'];
-
-        const subjectsList = [
-            'Biochimie',
-            'Microbiologie specială',
-            'Inocuitatea produselor alimentare',
-            'Operații unitare în industria alimentară 2',
-            'Aditivi şi ingrediente în industria alimentară',
-            'Principiile nutriţiei umane',
-            'Analiză senzorială',
-            'Limba engleză IV',
-            'Sport'
-        ];
 
         const accentColors = {
             blue: { primary: '#2563eb', light: '#bfdbfe', dark: '#1e40af', gradient: 'gradient-header-blue', name: 'Albastru' },
@@ -303,8 +308,8 @@
             return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
         };
 
-       const parseExamDate = (dateStr) => {
-            if (!dateStr || dateStr.toLowerCase().includes('aşteptare') || dateStr === '') {
+        const parseExamDate = (dateStr) => {
+            if (!dateStr || dateStr.toLowerCase().includes('așteptare') || dateStr.toLowerCase().includes('asteptare') || dateStr === '') {
                 return Infinity;
             }
 
@@ -338,7 +343,7 @@
                 }
 
                 if (day && month) {
-                    return (2026 * 10000) + (month * 100) + day;
+                    return (2027 * 10000) + (month * 100) + day;
                 }
             }
             return Infinity;
@@ -346,8 +351,8 @@
 
         const usefulLinks = [
             { name: 'Moodle UPB', url: 'https://curs.upb.ro/', desc: 'Platforma oficială de cursuri', icon: '🎓' },
-            { name: 'Platformă Note (Studenti)', url: 'https://studenti.pub.ro/', desc: 'Note, restanțe și taxe', icon: '📝' },
-            { name: 'Site Facultate (ISB)', url: 'https://isb.pub.ro/', desc: 'Anunțuri și noutăți Ingineria Sistemelor Biotehnice', icon: '🏢' },
+            { name: 'Platformă Note (Studenti)', url: 'https://studenti.pub.ro/', desc: 'Note, situație școlară și taxe', icon: '📝' },
+            { name: 'Site Facultate (ISB)', url: 'https://isb.pub.ro/', desc: 'Facultatea de Ingineria Sistemelor Biotehnice', icon: '🏢' }
         ];
 
         function LoadingSkeleton() {
@@ -391,7 +396,7 @@
             const getTypeColor = (type) => {
                 switch(type) {
                     case 'test': return 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400';
-                    case 'tema': return 'bg-slate-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400';
+                    case 'tema': return 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400';
                     case 'observatie': return 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400';
                     case 'materiale': return 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
                     default: return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
@@ -412,10 +417,10 @@
                                 onChange={(e) => setEditedAnnouncement({...editedAnnouncement, type: e.target.value})}
                                 className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
                             >
-                                <option value="test" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📝 Test</option>
-                                <option value="tema" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📋 Temă</option>
-                                <option value="observatie" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>💡 Observație</option>
-                                <option value="materiale" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📁 Materiale</option>
+                                <option value="test">📝 Test</option>
+                                <option value="tema">📋 Temă</option>
+                                <option value="observatie">💡 Observație</option>
+                                <option value="materiale">📁 Materiale</option>
                             </select>
                             
                             <input
@@ -430,9 +435,9 @@
                                 onChange={(e) => setEditedAnnouncement({...editedAnnouncement, subject: e.target.value})}
                                 className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
                             >
-                                <option value="" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>Fără materie specifică</option>
+                                <option value="">Fără materie specifică</option>
                                 {subjectsList.map(subj => (
-                                    <option key={subj} value={subj} className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>{subj}</option>
+                                    <option key={subj} value={subj}>{subj}</option>
                                 ))}
                             </select>
                             <textarea
@@ -446,117 +451,9 @@
                                 type="text"
                                 value={editedAnnouncement.dueDate || ''}
                                 onChange={(e) => setEditedAnnouncement({...editedAnnouncement, dueDate: e.target.value})}
-                                placeholder="Data limită (ex: 25 Mai 2026)"
+                                placeholder="Data limită (ex: 15 Ianuarie 2027)"
                                 className={`w-full px-3 py-2 rounded-xl text-xs font-bold border-2 focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
                             />
-
-                            {/* SECTIUNE INCARCARE / GESTIONARE FISIERE IN EDITARE */}
-                            <div>
-                                <label className={`text-[9px] font-black uppercase tracking-widest opacity-60 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                                    Încarcă / Modifică Materiale (Max 25MB)
-                                </label>
-                                <input 
-                                    type="file" 
-                                    multiple
-                                    accept="application/pdf,image/*"
-                                    onChange={async (e) => {
-                                        const files = Array.from(e.target.files);
-                                        if (!files.length) return;
-
-                                        const processedFiles = [];
-
-                                        for (let file of files) {
-                                            if (file.type === 'application/pdf') {
-                                                if (file.size > 25 * 1024 * 1024) {
-                                                    alert(`Atenție: PDF-ul ${file.name} are peste 25MB. Acesta nu va fi comprimat.`);
-                                                }
-                                                const reader = new FileReader();
-                                                const base64 = await new Promise(resolve => {
-                                                    reader.onloadend = () => resolve(reader.result);
-                                                    reader.readAsDataURL(file);
-                                                });
-                                                processedFiles.push({ name: file.name, data: base64 });
-                                            } else if (file.type.startsWith('image/')) {
-                                                const reader = new FileReader();
-                                                const base64 = await new Promise(resolve => {
-                                                    reader.onload = (event) => {
-                                                        const img = new Image();
-                                                        img.onload = () => {
-                                                            const canvas = document.createElement('canvas');
-                                                            let width = img.width;
-                                                            let height = img.height;
-
-                                                            const MAX_WIDTH = 2000;
-                                                            const MAX_HEIGHT = 2000;
-
-                                                            if (width > height) {
-                                                                if (width > MAX_WIDTH) {
-                                                                    height *= MAX_WIDTH / width;
-                                                                    width = MAX_WIDTH;
-                                                                }
-                                                            } else {
-                                                                if (height > MAX_HEIGHT) {
-                                                                    width *= MAX_HEIGHT / height;
-                                                                    height = MAX_HEIGHT;
-                                                                }
-                                                            }
-
-                                                            canvas.width = width;
-                                                            canvas.height = height;
-                                                            const ctx = canvas.getContext('2d');
-                                                            ctx.drawImage(img, 0, 0, width, height);
-                                                            resolve(canvas.toDataURL('image/jpeg', 0.8));
-                                                        };
-                                                        img.src = event.target.result;
-                                                    };
-                                                    reader.readAsDataURL(file);
-                                                });
-                                                processedFiles.push({ name: file.name.split('.')[0] + '.jpg', data: base64 });
-                                            }
-                                        }
-
-                                        setEditedAnnouncement(prev => ({
-                                            ...prev, 
-                                            attachedFiles: [...(prev.attachedFiles || []), ...processedFiles]
-                                        }));
-                                        
-                                        e.target.value = "";
-                                    }}
-                                    className={`w-full border-2 p-2 rounded-xl text-[10px] focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
-                                />
-                                
-                                {/* FIȘIER VECHI SINGULAR - POSIBILITATE STERGERE */}
-                                {editedAnnouncement.fileData && (!editedAnnouncement.attachedFiles || editedAnnouncement.attachedFiles.length === 0) && (
-                                    <div className="mt-2 space-y-1">
-                                        <p className={`text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center p-1.5 rounded ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
-                                            <span>✅ {editedAnnouncement.fileName?.substring(0, 25) || 'Fisier_existent'}...</span>
-                                            <span 
-                                                className="text-red-500 cursor-pointer px-2 text-xs hover:scale-125 transition-all" 
-                                                onClick={() => setEditedAnnouncement(prev => ({...prev, fileData: null, fileName: null}))}
-                                            >
-                                                ❌
-                                            </span>
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* FIȘIERE MULTIPLE NOI - POSIBILITATE STERGERE */}
-                                {editedAnnouncement.attachedFiles && editedAnnouncement.attachedFiles.length > 0 && (
-                                    <div className="mt-2 space-y-1">
-                                        {editedAnnouncement.attachedFiles.map((f, idx) => (
-                                            <p key={idx} className={`text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center p-1.5 rounded ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
-                                                <span>✅ {f.name.substring(0, 25)}{f.name.length > 25 ? '...' : ''}</span>
-                                                <span 
-                                                    className="text-red-500 cursor-pointer px-2 text-xs hover:scale-125 transition-all" 
-                                                    onClick={() => setEditedAnnouncement(prev => ({...prev, attachedFiles: prev.attachedFiles.filter((_, i) => i !== idx)}))}
-                                                >
-                                                    ❌
-                                                </span>
-                                            </p>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
 
                             <div className="flex gap-2 mt-2">
                                 <button
@@ -590,45 +487,16 @@
                             </div>
                             
                             {announcement.subject && (
-                                <p className="text-[10px] font-bold text-green-500 mb-1">📚 {announcement.subject}</p>
+                                <p className="text-[10px] font-bold text-emerald-500 mb-1">📚 {announcement.subject}</p>
                             )}
-                            <p className={`text-sm mb-2 break-words whitespace-pre-wrap ${darkMode ? 'text-red-400' : 'text-red-500'}`}>{announcement.content}</p>
+                            <p className={`text-sm mb-2 break-words whitespace-pre-wrap ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{announcement.content}</p>
                             
-                            {/* AFISARE FISIER VECHI SINGULAR */}
-                            {announcement.fileData && (!announcement.attachedFiles || announcement.attachedFiles.length === 0) && (
-                                <div className="mb-3">
-                                    <a 
-                                        href={announcement.fileData} 
-                                        download={announcement.fileName || 'material'}
-                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[9px] font-black uppercase border transition-all ${darkMode ? 'bg-blue-900/30 border-blue-800 text-blue-400 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
-                                    >
-                                        📥 DESCARCĂ: {announcement.fileName?.substring(0, 15)}...
-                                    </a>
-                                </div>
-                            )}
-
-                            {/* AFISARE FISIERE MULTIPLE NOI */}
-                            {announcement.attachedFiles && announcement.attachedFiles.length > 0 && (
-                                <div className="mb-3 flex flex-wrap gap-2">
-                                    {announcement.attachedFiles.map((file, idx) => (
-                                        <a 
-                                            key={idx}
-                                            href={file.data} 
-                                            download={file.name || 'material'}
-                                            className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[9px] font-black uppercase border transition-all ${darkMode ? 'bg-blue-900/30 border-blue-800 text-blue-400 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
-                                        >
-                                            📥 {file.name?.substring(0, 15)}...
-                                        </a>
-                                    ))}
-                                </div>
-                            )}
-
                             {announcement.dueDate && (
                                 <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 mb-2">⏰ Data limită: {announcement.dueDate}</p>
                             )}
                             <div className="flex items-center justify-between font-bold mt-2">
                                 {announcement.author ? (
-                                    <span className={`text-[11px] italic opacity-80 ${darkMode ? 'text-slate-400' : 'text-slate-50'}`}>{announcement.author}</span>
+                                    <span className={`text-[11px] italic opacity-80 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>👤 {announcement.author}</span>
                                 ) : <span></span>}
                                 <span className="text-[9px] text-slate-500">{new Date(announcement.date).toLocaleDateString('ro-RO')}</span>
                             </div>
@@ -658,7 +526,10 @@
         function App() {
             const [now, setNow] = useState(new Date());
             const [view, setView] = useState('orar'); 
-            const [exams, setExams] = useState(defaultExams);
+            const [exams, setExams] = useState(() => {
+                const saved = localStorage.getItem('ipa_local_exams');
+                return saved ? JSON.parse(saved) : defaultExams;
+            });
             const [isAdmin, setIsAdmin] = useState(false);
             const [isPinModalOpen, setIsPinModalOpen] = useState(false);
             const [pinInput, setPinInput] = useState('');
@@ -666,12 +537,15 @@
             const [isSaving, setIsSaving] = useState(false);
             const [user, setUser] = useState(null);
             const [isOnline, setIsOnline] = useState(false);
+            const [hasPermissionError, setHasPermissionError] = useState(false);
             const [isLoading, setIsLoading] = useState(true);
-            const [announcements, setAnnouncements] = useState([]);
+            const [announcements, setAnnouncements] = useState(() => {
+                const saved = localStorage.getItem('ipa_local_announcements');
+                return saved ? JSON.parse(saved) : [];
+            });
             const [showNewAnnouncementModal, setShowNewAnnouncementModal] = useState(false);
             const [accentColor, setAccentColor] = useState(() => localStorage.getItem('ipa_accent') || 'blue');
             
-            // STATE NICKNAME
             const [nickname, setNickname] = useState(() => localStorage.getItem('ipa_nickname') || '');
             const [showNicknamePrompt, setShowNicknamePrompt] = useState(false);
             const [tempNickname, setTempNickname] = useState('');
@@ -682,11 +556,9 @@
                 type: 'tema',
                 subject: '',
                 dueDate: '',
-                attachedFiles: [],
                 author: nickname || '' 
             });
 
-            // LOGICA VERIFICARE SNOOZE NICKNAME
             useEffect(() => {
                 const storedNickname = localStorage.getItem('ipa_nickname');
                 if (!storedNickname) {
@@ -704,28 +576,24 @@
                 }
             }, []);
 
+            // Calcul săptămână de semestru
             const currentSemWeek = useMemo(() => {
-                const semStart = new Date(2026, 9, 28); // 23 Septembrie
+                const semStart = new Date(2026, 8, 28); // 28 Septembrie 2026
                 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 if (today < semStart) return 1; 
                 
                 const diffTime = today.getTime() - semStart.getTime();
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                
-                // Am adăugat un offset de +2 zile. 
-                // Acest lucru face ca săptămâna să se "schimbe" sâmbăta în loc de luni.
-                // Astfel, pe 11 Aprilie (sâmbătă), sistemul va arăta deja Săptămâna 8.
                 return Math.floor((diffDays + 2) / 7) + 1;
             }, [now]);
             
             const currentWeekParity = useMemo(() => {
-                const weekNum = getWeekNumber(now);
-                return weekNum % 2 === 0 ? 'Impară' : 'Pară';
-            }, [now]);
+                return currentSemWeek % 2 !== 0 ? 'Impară' : 'Pară';
+            }, [currentSemWeek]);
 
             const semesterProgress = useMemo(() => {
-                const start = new Date(2026, 9, 28); 
-                const end = new Date(2027, 1, 22);    
+                const start = new Date(2026, 8, 28); 
+                const end = new Date(2027, 0, 24);    
                 const total = end - start;
                 const elapsed = now - start;
                 const percentage = Math.round((elapsed / total) * 100);
@@ -742,7 +610,7 @@
             const activeCardRef = useRef(null);
 
             useEffect(() => {
-                setTimeout(() => setIsLoading(false), 1200);
+                setTimeout(() => setIsLoading(false), 800);
             }, []);
 
             useEffect(() => {
@@ -756,17 +624,19 @@
                     }
 
                     if (window.FB) {
-                        const { auth, signInAnonymously, onAuthStateChanged } = window.FB;
+                        const { signInAnonymously, onAuthStateChanged } = window.FB;
                         
                         try {
-                            await signInAnonymously(auth);
+                            await signInAnonymously();
                         } catch (error) {
-                            console.error("❌ Eroare autentificare:", error);
+                            console.warn("Autentificarea anonimă nu este activată în Firebase Console. Trecere pe stocare locală.", error.message);
+                            setIsOnline(false);
+                            setHasPermissionError(true);
                         }
                         
-                        unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-                            setUser(user);
-                            setIsOnline(!!user);
+                        unsubscribeAuth = onAuthStateChanged((currentUser) => {
+                            setUser(currentUser);
+                            if (!currentUser) setIsOnline(false);
                         });
                     }
                 };
@@ -780,51 +650,62 @@
                 };
             }, []);
 
+            // Sincronizare anunțuri cu protecție la permisiuni lipsă
             useEffect(() => {
                 if (!user || !window.FB) return;
 
-                const { db, appId, collection, onSnapshot, query, orderBy } = window.FB;
-                const announcementsRef = collection(db, 'artifacts', appId, 'public', 'data', 'announcements');
-                const q = query(announcementsRef, orderBy('date', 'desc'));
+                const { appId, collection, onSnapshot, query } = window.FB;
+                const announcementsRef = collection('artifacts', appId, 'public', 'data', 'announcements');
+                const q = query(announcementsRef);
 
                 const unsubscribe = onSnapshot(q, 
                     (snapshot) => {
                         const announcementsList = [];
-                        snapshot.forEach((doc) => {
-                            announcementsList.push({ id: doc.id, ...doc.data() });
+                        snapshot.forEach((docSnap) => {
+                            announcementsList.push({ id: docSnap.id, ...docSnap.data() });
                         });
+                        announcementsList.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
                         setAnnouncements(announcementsList);
+                        localStorage.setItem('ipa_local_announcements', JSON.stringify(announcementsList));
+                        setIsOnline(true);
+                        setHasPermissionError(false);
                     },
                     (error) => {
-                        console.error("❌ Eroare încărcare anunțuri:", error);
+                        console.warn("Firebase Firestore: Lipsesc permisiunile de citire/scriere (Missing or insufficient permissions). Aplicația va funcționa în Mod Local.", error.code);
+                        setIsOnline(false);
+                        setHasPermissionError(true);
                     }
                 );
 
                 return () => unsubscribe();
             }, [user]);
 
+            // Sincronizare examene cu protecție la permisiuni lipsă
             useEffect(() => {
                 if (!user || !window.FB) return;
 
-                const { db, appId, doc, onSnapshot, setDoc } = window.FB;
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
+                const { appId, doc, onSnapshot, setDoc } = window.FB;
+                const docRef = doc('artifacts', appId, 'public', 'data', 'exams', 'main');
                 
                 const unsubscribe = onSnapshot(docRef, 
                     (snapshot) => {
                         if (snapshot.exists()) {
                             const data = snapshot.data();
-                            if (data && data.list) {
+                            if (data && data.list && Array.isArray(data.list) && data.list.length > 0) {
                                 setExams(data.list);
+                                localStorage.setItem('ipa_local_exams', JSON.stringify(data.list));
                             }
                         } else {
                             setDoc(docRef, { list: defaultExams }, { merge: true })
-                                .catch(console.error);
+                                .catch(() => {});
                         }
                         setIsOnline(true);
+                        setHasPermissionError(false);
                     },
                     (error) => {
-                        console.error("❌ Eroare sincronizare Firebase:", error);
+                        console.warn("Firebase Firestore: Permisiuni limitate pentru examene. Se utilizează datele locale.");
                         setIsOnline(false);
+                        setHasPermissionError(true);
                     }
                 );
                 
@@ -854,68 +735,30 @@
                 if (view === 'orar' && activeCardRef.current && !isLoading) {
                     setTimeout(() => {
                         activeCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 600);
+                    }, 400);
                 }
             }, [activeDay, group, week, view, isLoading]);
 
-            const futureSchedule = useMemo(() => {
+            // Filtrare orar
+            const currentSchedule = useMemo(() => {
                 return scheduleData.filter(item => {
+                    if (item.day !== activeDay) return false;
+                    
                     const gMatch = group === 'Toate' || item.group === 'Toți' || item.group === group;
                     
                     let wMatch = true;
                     if (week !== 'Toate') {
-                        if (item.week === 'Toate') wMatch = true;
-                        else if (week === 'Impară') wMatch = item.week.includes('Impară') || item.week.includes('8-14') || item.week.includes('11') || item.week.includes('13') || item.week.includes('8-10');
-                        else if (week === 'Pară') wMatch = item.week.includes('Pară') || item.week.includes('8-14') || item.week.includes('8') || item.week.includes('10') || item.week.includes('12') || item.week.includes('8-10');
+                        if (item.week === 'Toate') {
+                            wMatch = true;
+                        } else if (week === 'Impară') {
+                            wMatch = item.week.includes('Impară') || item.week.includes('1, 3, 5, 7');
+                        } else if (week === 'Pară') {
+                            wMatch = item.week.includes('Pară') || item.week.includes('S. Pară');
+                        }
                     }
                     return gMatch && wMatch;
                 });
-            }, [group, week]);
-
-            const filteredSchedule = useMemo(() => {
-                return futureSchedule.filter(item => {
-                    let chronMatch = true;
-                    if (currentSemWeek < 8) {
-                        if (item.week.includes('8-14') || item.week.includes('8,') || item.week.includes('8-10')) {
-                            chronMatch = false;
-                        }
-                    }
-                    if (currentSemWeek < 11) {
-                        if (item.week.includes('11-2h*') && !item.week.includes('8')) {
-                            chronMatch = false;
-                        }
-                    }
-                    return chronMatch;
-                });
-            }, [futureSchedule, currentSemWeek]);
-
-            const futureScheduleForDay = futureSchedule.filter(item => item.day === activeDay);
-            const currentSchedule = filteredSchedule.filter(item => item.day === activeDay);
-
-            const activeHoliday = useMemo(() => {
-                const dayMap = { 'Luni': 1, 'Marți': 2, 'Miercuri': 3, 'Joi': 4, 'Vineri': 5 };
-                const currentDayIndex = now.getDay() || 7; 
-                const activeDayIndex = dayMap[activeDay];
-                
-                if (!activeDayIndex) return null;
-
-                const diff = activeDayIndex - currentDayIndex;
-                const targetDate = new Date(now);
-                targetDate.setDate(now.getDate() + diff);
-                
-                const d = targetDate.getDate();
-                const m = targetDate.getMonth() + 1; 
-                const y = targetDate.getFullYear();
-                
-                if (y === 2026) {
-                    if (m === 4 && d === 10) return 'Vinerea Mare – zi liberă';
-                    if (m === 4 && d === 11) return 'Sâmbăta Mare – zi liberă';
-                    if (m === 4 && d === 13) return 'A doua zi de Paște – zi liberă';
-                    if (m === 4 && d === 14) return 'A treia zi de Paște – zi liberă';
-                    if (m === 5 && d === 1) return 'Ziua Internațională a Muncii – zi liberă';
-                }
-                return null;
-            }, [now, activeDay]);
+            }, [activeDay, group, week]);
 
             const isClassActive = (startStr, endStr, dayStr) => {
                 const dayIndex = now.getDay();
@@ -936,8 +779,10 @@
                 } else {
                     setPinInput('');
                     const input = document.getElementById('pinInput');
-                    input.classList.add('border-red-500');
-                    setTimeout(() => input.classList.remove('border-red-500'), 500);
+                    if (input) {
+                        input.classList.add('border-red-500');
+                        setTimeout(() => input.classList.remove('border-red-500'), 500);
+                    }
                 }
             };
 
@@ -950,79 +795,90 @@
             };
 
             const handleSaveExam = async (updatedExam) => {
-                if (!user || !window.FB) return;
-                
                 setIsSaving(true);
-                try {
-                    const { db, appId, doc, setDoc } = window.FB;
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'exams', 'main');
-                    const newList = exams.map(e => e.id === updatedExam.id ? updatedExam : e);
-                    await setDoc(docRef, { list: newList }, { merge: true });
-                    setEditModalExam(null);
-                    
-                } catch (err) {
-                    console.error("❌ Eroare la salvare:", err);
-                } finally {
-                    setIsSaving(false);
+                const newList = exams.map(e => e.id === updatedExam.id ? updatedExam : e);
+                setExams(newList);
+                localStorage.setItem('ipa_local_exams', JSON.stringify(newList));
+
+                if (user && window.FB && isOnline) {
+                    try {
+                        const { appId, doc, setDoc } = window.FB;
+                        const docRef = doc('artifacts', appId, 'public', 'data', 'exams', 'main');
+                        await setDoc(docRef, { list: newList }, { merge: true });
+                    } catch (err) {
+                        console.warn("Salvat doar local (lipsă permisiuni pe server):", err.message);
+                    }
                 }
+                setIsSaving(false);
+                setEditModalExam(null);
             };
 
             const handleAddAnnouncement = async () => {
-                if (!newAnnouncement.title || !newAnnouncement.content || !user || !window.FB) return;
+                if (!newAnnouncement.title || !newAnnouncement.content) return;
                 
-                try {
-                    const { db, appId, collection, addDoc } = window.FB;
-                    const announcementsRef = collection(db, 'artifacts', appId, 'public', 'data', 'announcements');
-                    
-                    const announcementData = {
-                        ...newAnnouncement,
-                        author: nickname || 'Anonim',
-                        date: new Date().toISOString() 
-                    };
-                    
-                    await addDoc(announcementsRef, announcementData);
-                    
-                    setShowNewAnnouncementModal(false);
-                    setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '', attachedFiles: [], author: nickname || '' });
-                } catch (err) {
-                    console.error("❌ Eroare la adăugare anunț:", err);
+                const announcementData = {
+                    ...newAnnouncement,
+                    id: 'local_' + Date.now(),
+                    author: nickname || 'Anonim',
+                    date: new Date().toISOString() 
+                };
+
+                // Salvăm întotdeauna întâi local pentru a nu pierde datele
+                const updated = [announcementData, ...announcements];
+                setAnnouncements(updated);
+                localStorage.setItem('ipa_local_announcements', JSON.stringify(updated));
+
+                if (user && window.FB && isOnline) {
+                    try {
+                        const { appId, collection, addDoc } = window.FB;
+                        const announcementsRef = collection('artifacts', appId, 'public', 'data', 'announcements');
+                        await addDoc(announcementsRef, announcementData);
+                    } catch (err) {
+                        console.warn("Salvat cu succes local (Firebase a respins permisiunea):", err.message);
+                    }
                 }
+                
+                setShowNewAnnouncementModal(false);
+                setNewAnnouncement({ title: '', content: '', type: 'tema', subject: '', dueDate: '', author: nickname || '' });
             };
 
             const handleEditAnnouncement = async (updatedAnnouncement) => {
-                if (!user || !window.FB) return;
-                
-                try {
-                    const { db, appId, doc, updateDoc } = window.FB;
-                    const announcementRef = doc(db, 'artifacts', appId, 'public', 'data', 'announcements', updatedAnnouncement.id);
-                    
-                    await updateDoc(announcementRef, {
-                        title: updatedAnnouncement.title,
-                        content: updatedAnnouncement.content,
-                        type: updatedAnnouncement.type,
-                        subject: updatedAnnouncement.subject || '',
-                        dueDate: updatedAnnouncement.dueDate || '',
-                        author: updatedAnnouncement.author || '',
-                        attachedFiles: updatedAnnouncement.attachedFiles || [],
-                        fileData: updatedAnnouncement.fileData || null,
-                        fileName: updatedAnnouncement.fileName || null,
-                        lastEdited: new Date().toISOString()
-                    });
-                } catch (err) {
-                    console.error("❌ Eroare la editare anunț:", err);
+                const updatedList = announcements.map(a => a.id === updatedAnnouncement.id ? updatedAnnouncement : a);
+                setAnnouncements(updatedList);
+                localStorage.setItem('ipa_local_announcements', JSON.stringify(updatedList));
+
+                if (user && window.FB && isOnline && !updatedAnnouncement.id.startsWith('local_')) {
+                    try {
+                        const { appId, doc, updateDoc } = window.FB;
+                        const announcementRef = doc('artifacts', appId, 'public', 'data', 'announcements', updatedAnnouncement.id);
+                        await updateDoc(announcementRef, {
+                            title: updatedAnnouncement.title,
+                            content: updatedAnnouncement.content,
+                            type: updatedAnnouncement.type,
+                            subject: updatedAnnouncement.subject || '',
+                            dueDate: updatedAnnouncement.dueDate || '',
+                            author: updatedAnnouncement.author || '',
+                            lastEdited: new Date().toISOString()
+                        });
+                    } catch (err) {
+                        console.warn("Editat local:", err.message);
+                    }
                 }
             };
 
             const handleDeleteAnnouncement = async (id) => {
-                if (!user || !window.FB || !window.confirm("Sigur dorești să ștergi acest anunț?")) return;
-                
-                try {
-                    const { db, appId, doc, deleteDoc } = window.FB;
-                    const announcementRef = doc(db, 'artifacts', appId, 'public', 'data', 'announcements', id);
-                    
-                    await deleteDoc(announcementRef);
-                } catch (err) {
-                    console.error("❌ Eroare la ștergere anunț:", err);
+                const updatedList = announcements.filter(a => a.id !== id);
+                setAnnouncements(updatedList);
+                localStorage.setItem('ipa_local_announcements', JSON.stringify(updatedList));
+
+                if (user && window.FB && isOnline && !id.startsWith('local_')) {
+                    try {
+                        const { appId, doc, deleteDoc } = window.FB;
+                        const announcementRef = doc('artifacts', appId, 'public', 'data', 'announcements', id);
+                        await deleteDoc(announcementRef);
+                    } catch (err) {
+                        console.warn("Șters local:", err.message);
+                    }
                 }
             };
 
@@ -1074,9 +930,12 @@
                                     <div>
                                         <div className="flex items-center gap-2 sm:gap-3">
                                             <h1 className="text-lg sm:text-xl font-black italic tracking-tight leading-none uppercase">IPA 737</h1>
-                                            <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 whitespace-nowrap ${isOnline ? 'text-emerald-100 bg-emerald-500/30' : 'text-amber-100 bg-amber-500/30'}`}>
+                                            <span 
+                                                title={hasPermissionError ? "Baza de date Firebase are reguli restrictive. Datele se salvează în siguranță pe dispozitivul tău." : (isOnline ? "Conectat la server" : "Mod Local")}
+                                                className={`text-[8px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${isOnline ? 'text-emerald-100 bg-emerald-500/30' : 'text-amber-100 bg-amber-500/30'}`}
+                                            >
                                                 <span className={`status-dot ${isOnline ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
-                                                {isOnline ? 'CONECTAT' : 'CONECTARE...'}
+                                                {isOnline ? 'CONECTAT' : (hasPermissionError ? 'MOD LOCAL' : 'CONECTARE...')}
                                             </span>
                                         </div>
                                         <div className="flex flex-col gap-1.5 mt-1 sm:mt-2">
@@ -1099,7 +958,7 @@
                                     <button 
                                         onClick={() => setShowNicknamePrompt(true)}
                                         className="flex justify-center items-center p-1.5 sm:p-2 rounded-xl bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm transition-all shadow-sm"
-                                        title="Setări (Schimbă Nume)"
+                                        title="Schimbă Nume"
                                     >
                                         ⚙️
                                     </button>
@@ -1187,22 +1046,13 @@
                         )}
                     </header>
 
+                    {}
                     <main className="max-w-2xl mx-auto w-full px-4 py-6 flex-1">
                         {isLoading && view === 'orar' && <LoadingSkeleton />}
 
                         {!isLoading && view === 'orar' && (
                             <div className="space-y-4 animate-fade" key={`${activeDay}-${group}-${week}`}>
-                                {activeHoliday ? (
-                                    <div className="py-24 text-center animate-fade">
-                                        <div className="text-5xl mb-4">🎓</div>
-                                        <h3 className={`font-black text-sm uppercase italic tracking-widest mb-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Vacanță de vară!</h3>
-                                        <div className={`inline-block px-5 py-3 rounded-2xl border shadow-sm ${darkMode ? 'bg-blue-900/20 border-blue-800/50 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
-                                            <p className="text-[11px] font-black uppercase tracking-widest">
-                                                📅 Ne vedem pe 28 septembrie!
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : currentSchedule.length > 0 ? currentSchedule.map((item, i) => {
+                                {currentSchedule.length > 0 ? currentSchedule.map((item, i) => {
                                     const active = isClassActive(item.start, item.end, item.day);
                                     return (
                                         <div 
@@ -1228,6 +1078,11 @@
                                                         <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border tracking-tight ${darkMode ? 'bg-slate-900 text-slate-300 border-slate-700' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
                                                             {getIcon(item.type)} {item.type}
                                                         </span>
+                                                        {item.group !== 'Toți' && (
+                                                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border tracking-tight ${darkMode ? 'bg-blue-900/30 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>
+                                                                Gr. {item.group}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
 
@@ -1238,7 +1093,10 @@
                                                         <div className="flex items-center gap-3 text-[11px] font-semibold flex-wrap">
                                                             <span className={darkMode ? 'text-slate-400' : 'text-slate-500'}>{item.prof}</span>
                                                             {item.email && (
-                                                                <a href={`mailto:${item.email}`} className={`px-2 py-1 rounded-full text-[9px] font-black border transition-all shadow-sm italic uppercase tracking-tight flex items-center gap-1 ${darkMode ? 'bg-blue-900/30 text-blue-400 border-blue-800/50 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-600 hover:text-white'}`}>
+                                                                <a 
+                                                                    href={`mailto:${item.email}`} 
+                                                                    className={`px-2 py-1 rounded-full text-[9px] font-black border transition-all shadow-sm italic uppercase tracking-tight flex items-center gap-1 ${darkMode ? 'bg-blue-900/30 text-blue-400 border-blue-800/50 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-600 hover:text-white'}`}
+                                                                >
                                                                     📧 Contact
                                                                 </a>
                                                             )}
@@ -1248,12 +1106,12 @@
                                                         </div>
                                                     </div>
 
-                                                    {item.note && (
+                                                    {(item.note || (item.room && item.room.includes('D015*'))) && (
                                                         <div className={`mt-4 p-4 border-l-4 rounded-r-2xl text-[10px] font-bold leading-relaxed flex gap-3 items-start shadow-md ${darkMode ? 'bg-amber-900/20 border-amber-500 text-amber-200' : 'bg-amber-50 border-amber-400 text-amber-900'}`}>
                                                             <span className="text-lg">⚠️</span>
                                                             <div>
-                                                                <div className={`uppercase tracking-widest text-[8px] mb-1 ${darkMode ? 'opacity-50 text-amber-400' : 'opacity-70'}`}>Observație importantă</div>
-                                                                {item.note}
+                                                                <div className={`uppercase tracking-widest text-[8px] mb-1 ${darkMode ? 'opacity-50 text-amber-400' : 'opacity-70'}`}>Observație sală</div>
+                                                                {item.note || 'Sala D015* marcata cu rosu si in orar va fi disponibila din săptămâna a 4-a a semestrului.'}
                                                             </div>
                                                         </div>
                                                     )}
@@ -1269,13 +1127,9 @@
                                     );
                                 }) : (
                                     <div className="py-24 text-center animate-fade">
-                                        <div className="text-5xl mb-4">🎓</div>
-                                        <h3 className={`font-black text-sm uppercase italic tracking-widest mb-3 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Vacanță de vară!</h3>
-                                        <div className={`inline-block px-5 py-3 rounded-2xl border shadow-sm ${darkMode ? 'bg-blue-900/20 border-blue-800/50 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
-                                            <p className="text-[11px] font-black uppercase tracking-widest">
-                                                📅 Ne vedem pe 28 septembrie!
-                                            </p>
-                                        </div>
+                                        <div className="text-5xl mb-4">☕</div>
+                                        <h3 className={`font-black text-sm uppercase italic tracking-widest mb-2 ${darkMode ? 'text-white' : 'text-slate-800'}`}>Nicio oră programată</h3>
+                                        <p className="text-[11px] font-bold opacity-50 uppercase tracking-wider">Zi liberă\</p>
                                     </div>
                                 )}
                             </div>
@@ -1285,7 +1139,7 @@
                             <div className="space-y-4 animate-pop">
                                 <div className="flex items-center justify-between px-1">
                                     <div className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                                        Planificare Sesiune iarna 2027
+                                        Planificare Sesiune 2026-2027
                                     </div>
                                     <button 
                                         onClick={() => isAdmin ? setIsAdmin(false) : setIsPinModalOpen(true)}
@@ -1331,7 +1185,7 @@
                                 
                                 <div className="py-8 text-center px-6">
                                     <p className="text-[9px] font-bold text-slate-500 uppercase italic opacity-50 tracking-widest leading-loose">
-                                        {isAdmin ? "Modul de editare este ACTIV." : "Examenele sunt ordonate cronologic."}
+                                        {isAdmin ? "Modul de editare este ACTIV. Modificările se salvează automat." : "Datele examenelor sunt sincronizate automat."}
                                     </p>
                                 </div>
                             </div>
@@ -1341,12 +1195,12 @@
                             <div className="space-y-4 animate-pop">
                                 <div className="flex items-center justify-between px-1">
                                     <div className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                                        Observații • Teme • Materiale
+                                        Observații • Teme • Proiecte
                                     </div>
                                     <button 
                                         onClick={() => {
                                             setNewAnnouncement({ 
-                                                title: '', content: '', type: 'tema', subject: '', dueDate: '', attachedFiles: [], author: nickname || '' 
+                                                title: '', content: '', type: 'tema', subject: '', dueDate: '', author: nickname || '' 
                                             });
                                             setShowNewAnnouncementModal(true);
                                         }}
@@ -1359,8 +1213,8 @@
                                 {announcements.length === 0 ? (
                                     <div className="py-16 text-center">
                                         <div className="text-4xl mb-3">📢</div>
-                                        <h3 className="text-slate-400 font-bold tracking-[0.2em] uppercase text-[10px]">Nu există anunțuri</h3>
-                                        <p className="text-[9px] text-slate-500 mt-2">Adaugă primul anunț!</p>
+                                        <h3 className="text-slate-400 font-bold tracking-[0.2em] uppercase text-[10px]">Nu există anunțuri active</h3>
+                                        <p className="text-[9px] text-slate-500 mt-2">Fii primul care adaugă o temă sau o observație!</p>
                                     </div>
                                 ) : (
                                     announcements.map((announcement) => (
@@ -1390,23 +1244,41 @@
                                         </div>
                                     </a>
                                 ))}
+
+                                {/* Card Avertizare Taxă Restanțe */}
+                                <div className={`p-5 rounded-2xl border shadow-sm flex items-start gap-4 transition-all card-hover ${darkMode ? 'bg-amber-950/20 border-amber-500/40 text-amber-200' : 'bg-amber-50 border-amber-300 text-amber-900'}`}>
+                                    <div className="text-3xl shrink-0 animate-bounce">⚠️</div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                                            <h3 className={`font-black text-xs sm:text-sm uppercase tracking-tight italic ${darkMode ? 'text-amber-400' : 'text-amber-800'}`}>
+                                                Atenție: Taxă Restanțe Majorată
+                                            </h3>
+                                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${darkMode ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-amber-200 text-amber-950'}`}>
+                                                350 LEI / EXAMEN
+                                            </span>
+                                        </div>
+                                        <p className={`text-[11px] font-medium leading-relaxed ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                                            Taxa de reexaminare a fost majorată la <strong>350 lei</strong>. Recomandarea este să vă susțineți restanțele în acest an universitar, deoarece din anul universitar următor taxa va crește la <strong>400 lei</strong>!
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </main>
 
-                    {/* MODAL NICKNAME - PROMPT INIȚIAL */}
+                    {}
                     {showNicknamePrompt && (
                         <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
                                 <h3 className={`text-sm font-black uppercase italic tracking-widest mb-2 text-center ${darkMode ? 'text-white' : 'text-slate-900'}`}>Numele tău</h3>
-                                <p className={`text-[10px] text-center mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-50'}`}>
-                                    Alege un nickname pentru a vedea colegii cine postează anunțurile (opțional).
+                                <p className={`text-[10px] text-center mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Alege un nickname pentru a vedea colegii cine postează anunțurile.
                                 </p>
                                 <input 
                                     type="text" 
                                     value={tempNickname} 
                                     onChange={(e) => setTempNickname(e.target.value)}
-                                    placeholder="Ex: Alex, Anonim..."
+                                    placeholder="Ex: Alex, Ioana..."
                                     className={`w-full border-2 p-3 rounded-2xl text-center text-sm font-bold focus:outline-none transition-all ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-500 focus:border-blue-500' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-blue-500'}`}
                                 />
                                 <div className="grid grid-cols-2 gap-3 mt-6">
@@ -1417,7 +1289,6 @@
                         </div>
                     )}
 
-                    {/* MODAL PIN */}
                     {isPinModalOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-xs p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
@@ -1439,7 +1310,6 @@
                         </div>
                     )}
 
-                    {/* MODAL EDITARE EXAMEN */}
                     {editModalExam && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
@@ -1448,7 +1318,7 @@
                                 
                                 <div className="space-y-4 text-left">
                                     <div>
-                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Data (Ex: 15 Iunie)</label>
+                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-40 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Data (Ex: 15 Ianuarie)</label>
                                         <input 
                                             type="text" 
                                             value={editModalExam.date} 
@@ -1473,7 +1343,7 @@
                                             <input 
                                                 type="text" 
                                                 value={editModalExam.room} 
-                                                placeholder="L120"
+                                                placeholder="D115"
                                                 onChange={(e) => setEditModalExam({...editModalExam, room: e.target.value})}
                                                 className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
                                             />
@@ -1490,9 +1360,9 @@
                                         Renunță
                                     </button>
                                     <button 
-                                        disabled={isSaving || !isOnline}
+                                        disabled={isSaving}
                                         onClick={() => handleSaveExam(editModalExam)} 
-                                        className={`bg-emerald-600 text-white py-3 rounded-2xl text-xs font-black uppercase shadow-lg shadow-emerald-500/20 transition-all ${isSaving || !isOnline ? 'opacity-70 scale-95 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                                        className={`bg-emerald-600 text-white py-3 rounded-2xl text-xs font-black uppercase shadow-lg shadow-emerald-500/20 transition-all ${isSaving ? 'opacity-70 scale-95 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
                                     >
                                         {isSaving ? 'Se salvează...' : 'Salvează'}
                                     </button>
@@ -1501,7 +1371,6 @@
                         </div>
                     )}
 
-                    {/* MODAL ANUNȚ NOU */}
                     {showNewAnnouncementModal && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay animate-fade">
                             <div className={`w-full max-w-sm p-6 rounded-3xl shadow-2xl animate-pop ${darkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white'}`}>
@@ -1515,10 +1384,10 @@
                                             onChange={(e) => setNewAnnouncement({...newAnnouncement, type: e.target.value})}
                                             className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
                                         >
-                                            <option value="test" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📝 Test</option>
-                                            <option value="tema" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📋 Temă</option>
-                                            <option value="observatie" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>💡 Observație</option>
-                                            <option value="materiale" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>📁 Materiale / Referate</option>
+                                            <option value="test">📝 Test</option>
+                                            <option value="tema">📋 Temă</option>
+                                            <option value="observatie">💡 Observație</option>
+                                            <option value="materiale">📁 Materiale / Referate</option>
                                         </select>
                                     </div>
                                     <div>
@@ -1537,9 +1406,9 @@
                                             onChange={(e) => setNewAnnouncement({...newAnnouncement, subject: e.target.value})}
                                             className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
                                         >
-                                            <option value="" className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>Fără materie specifică</option>
+                                            <option value="">Fără materie specifică</option>
                                             {subjectsList.map(subj => (
-                                                <option key={subj} value={subj} className={darkMode ? 'bg-slate-800 text-white' : 'bg-white text-slate-900'}>{subj}</option>
+                                                <option key={subj} value={subj}>{subj}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -1558,97 +1427,9 @@
                                             type="text" 
                                             value={newAnnouncement.dueDate} 
                                             onChange={(e) => setNewAnnouncement({...newAnnouncement, dueDate: e.target.value})}
-                                            placeholder="ex: 25 Mai 2026"
+                                            placeholder="ex: 15 Ianuarie 2027"
                                             className={`w-full border-2 p-3 rounded-xl text-xs font-bold focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white placeholder-slate-400' : 'border-slate-200 bg-white text-slate-900 placeholder-slate-400'}`}
                                         />
-                                    </div>
-
-                                    <div>
-                                        <label className={`text-[9px] font-black uppercase tracking-widest opacity-60 ml-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Încarcă Materiale (Poți selecta mai multe - Max 25MB)</label>
-                                        <input 
-                                            type="file" 
-                                            multiple
-                                            accept="application/pdf,image/*"
-                                            onChange={async (e) => {
-                                                const files = Array.from(e.target.files);
-                                                if (!files.length) return;
-
-                                                const processedFiles = [];
-
-                                                for (let file of files) {
-                                                    if (file.type === 'application/pdf') {
-                                                        if (file.size > 25 * 1024 * 1024) {
-                                                            alert(`Atenție: PDF-ul ${file.name} are peste 25MB. Acesta nu va fi comprimat automat.`);
-                                                        }
-                                                        const reader = new FileReader();
-                                                        const base64 = await new Promise(resolve => {
-                                                            reader.onloadend = () => resolve(reader.result);
-                                                            reader.readAsDataURL(file);
-                                                        });
-                                                        processedFiles.push({ name: file.name, data: base64 });
-                                                    } else if (file.type.startsWith('image/')) {
-                                                        const reader = new FileReader();
-                                                        const base64 = await new Promise(resolve => {
-                                                            reader.onload = (event) => {
-                                                                const img = new Image();
-                                                                img.onload = () => {
-                                                                    const canvas = document.createElement('canvas');
-                                                                    let width = img.width;
-                                                                    let height = img.height;
-
-                                                                    const MAX_WIDTH = 2000;
-                                                                    const MAX_HEIGHT = 2000;
-
-                                                                    if (width > height) {
-                                                                        if (width > MAX_WIDTH) {
-                                                                            height *= MAX_WIDTH / width;
-                                                                            width = MAX_WIDTH;
-                                                                        }
-                                                                    } else {
-                                                                        if (height > MAX_HEIGHT) {
-                                                                            width *= MAX_HEIGHT / height;
-                                                                            height = MAX_HEIGHT;
-                                                                        }
-                                                                    }
-
-                                                                    canvas.width = width;
-                                                                    canvas.height = height;
-                                                                    const ctx = canvas.getContext('2d');
-                                                                    ctx.drawImage(img, 0, 0, width, height);
-                                                                    resolve(canvas.toDataURL('image/jpeg', 0.8));
-                                                                };
-                                                                img.src = event.target.result;
-                                                            };
-                                                            reader.readAsDataURL(file);
-                                                        });
-                                                        processedFiles.push({ name: file.name.split('.')[0] + '.jpg', data: base64 });
-                                                    }
-                                                }
-
-                                                setNewAnnouncement(prev => ({
-                                                    ...prev, 
-                                                    attachedFiles: [...(prev.attachedFiles || []), ...processedFiles]
-                                                }));
-                                                
-                                                e.target.value = "";
-                                            }}
-                                            className={`w-full border-2 p-2 rounded-xl text-[10px] focus:outline-none ${darkMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-900'}`}
-                                        />
-                                        {newAnnouncement.attachedFiles && newAnnouncement.attachedFiles.length > 0 && (
-                                            <div className="mt-2 space-y-1">
-                                                {newAnnouncement.attachedFiles.map((f, idx) => (
-                                                    <p key={idx} className={`text-[8px] font-bold text-emerald-500 ml-1 flex justify-between items-center p-1.5 rounded ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
-                                                        <span>✅ {f.name.substring(0, 25)}{f.name.length > 25 ? '...' : ''}</span>
-                                                        <span 
-                                                            className="text-red-500 cursor-pointer px-2 text-xs hover:scale-125 transition-all" 
-                                                            onClick={() => setNewAnnouncement(prev => ({...prev, attachedFiles: prev.attachedFiles.filter((_, i) => i !== idx)}))}
-                                                        >
-                                                            ❌
-                                                        </span>
-                                                    </p>
-                                                ))}
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 
@@ -1670,8 +1451,11 @@
                         </div>
                     )}
 
+                    {}
                     <footer className={`py-8 text-center px-8 border-t ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'}`}>
-                        <p className={`text-[9px] font-black uppercase tracking-[0.4em] italic leading-loose ${darkMode ? 'text-slate-600' : 'text-slate-300'}`}>Ingineria Produselor Alimentare • Final.2026 • UPB</p>
+                        <p className={`text-[9px] font-black uppercase tracking-[0.4em] italic leading-loose ${darkMode ? 'text-slate-600' : 'text-slate-300'}`}>
+                            Ingineria Produselor Alimentare • Anul III • UPB
+                        </p>
                     </footer>
                 </div>
             );
